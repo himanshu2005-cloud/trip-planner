@@ -1,175 +1,190 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Compass,
   ArrowRight,
-  Sparkles,
-  Layers,
-  Route,
-  CloudRain,
-  ShieldCheck,
+  MapPin,
+  Calendar,
+  Wallet,
   Star,
-  Clock,
-  IndianRupee,
+  Globe,
+  Plane,
+  Building2,
+  Car,
+  TrendingUp
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
+import Input from '../components/ui/Input';
 
 export const LandingPage = () => {
+  const navigate = useNavigate();
+  const [destination, setDestination] = useState('');
+  const [activeTab, setActiveTab] = useState('holidays');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (destination.trim()) {
+      navigate('/plan', { state: { destination } });
+    } else {
+      navigate('/plan');
+    }
+  };
+
+  const tabs = [
+    { id: 'flights', label: 'Flights', icon: Plane },
+    { id: 'hotels', label: 'Hotels', icon: Building2 },
+    { id: 'holidays', label: 'Holiday Packages', icon: Compass },
+    { id: 'cabs', label: 'Cabs', icon: Car },
+  ];
+
   return (
-    <div className="flex flex-col gap-20 py-8 animate-fade-in">
-      {/* ── Hero Section ───────────────────────────────────────────────────── */}
-      <section className="text-center max-w-4xl mx-auto flex flex-col items-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-600/10 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider mb-6 shadow-glow-sm">
-          <Sparkles size={14} className="text-purple-400" />
-          <span>Algorithmic Travel Intelligence</span>
+    <div className="flex flex-col min-h-screen">
+      {/* ── MMT Style Hero & Search ────────────────────────────────────────── */}
+      <section className="relative pt-28 pb-32 px-4 bg-purple-900 overflow-hidden">
+        {/* Background elements */}
+        <div className="absolute top-0 left-0 right-0 bottom-0 opacity-20 pointer-events-none">
+          <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px]"></div>
+          <div className="absolute top-20 -right-20 w-[30rem] h-[30rem] bg-accent-pink rounded-full mix-blend-screen filter blur-[120px]"></div>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-text-primary mb-6 leading-tight">
-          Plan less.{' '}
-          <span className="bg-gradient-to-r from-purple-400 via-accent-pink to-accent-blue bg-clip-text text-transparent">
-            Explore more.
-          </span>
-        </h1>
+        <div className="max-w-5xl mx-auto relative z-10 animate-fade-in">
+          <h1 className="text-3xl md:text-5xl font-bold text-white text-center mb-10 tracking-tight">
+            Discover Your Next Great Adventure
+          </h1>
 
-        <p className="text-base sm:text-lg text-text-secondary max-w-2xl mb-8 leading-relaxed">
-          Build smarter day-by-day itineraries optimized around your time, budget,
-          interests, and travel distance with k-means clustering and 2-opt route ordering.
-        </p>
+          {/* Search Widget Card */}
+          <Card className="bg-surface p-2 rounded-2xl shadow-xl mx-auto max-w-4xl border-none">
+            {/* Tabs */}
+            <div className="flex overflow-x-auto hide-scrollbar border-b border-glass-border mb-4">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-6 py-4 font-semibold text-sm transition-all whitespace-nowrap ${
+                    activeTab === tab.id 
+                      ? 'text-purple-600 border-b-2 border-purple-600' 
+                      : 'text-text-secondary hover:text-purple-500'
+                  }`}
+                >
+                  <tab.icon size={18} />
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <Link to="/plan">
-            <Button size="lg" variant="primary">
-              <span>Create My Itinerary</span>
-              <ArrowRight size={18} />
-            </Button>
-          </Link>
-          <a href="#how-it-works">
-            <Button size="lg" variant="secondary">
-              <span>Explore How It Works</span>
-            </Button>
-          </a>
+            {/* Search Form */}
+            <form onSubmit={handleSearch} className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-text-muted mb-1 uppercase tracking-wider">Destination</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500" size={20} />
+                  <input
+                    type="text"
+                    placeholder="e.g. Paris, Jaipur, Tokyo"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    className="w-full bg-background border border-glass-border text-text-primary rounded-xl py-4 pl-10 pr-4 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all font-semibold text-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-text-muted mb-1 uppercase tracking-wider">Duration</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
+                  <select className="w-full bg-background border border-glass-border text-text-primary rounded-xl py-4 pl-10 pr-4 outline-none appearance-none font-semibold text-lg">
+                    <option value="3">3 Days</option>
+                    <option value="5">5 Days</option>
+                    <option value="7">1 Week</option>
+                  </select>
+                </div>
+              </div>
+
+              <Button type="submit" size="lg" variant="primary" className="bg-purple-600 hover:bg-purple-700 py-4 h-full text-lg w-full">
+                SEARCH
+              </Button>
+            </form>
+          </Card>
         </div>
       </section>
 
-      {/* ── Hero Preview Card (DESIGN.md §8: preview card instead of generic stock image) ── */}
-      <section className="max-w-4xl mx-auto w-full">
-        <Card className="p-6 sm:p-8 border-purple-500/30 shadow-glow relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-white/[0.08] gap-4">
-            <div>
-              <Badge variant="purple" className="mb-2">Demo Itinerary</Badge>
-              <h3 className="text-2xl font-bold text-text-primary">Paris, France</h3>
-              <p className="text-xs text-text-muted mt-1">
-                5 Days · ₹40,000 Budget · 18 Curated Places
+      {/* ── Trending Destinations ────────────────────────────────────────── */}
+      <section className="py-16 px-4 bg-background max-w-7xl mx-auto w-full">
+        <div className="flex items-center gap-2 mb-8">
+          <TrendingUp className="text-purple-500" size={24} />
+          <h2 className="text-2xl font-bold text-text-primary">Trending Holiday Destinations</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { name: 'Paris', img: 'https://images.unsplash.com/photo-1502602881469-447844698544?q=80&w=600&auto=format&fit=crop', desc: 'City of Lights' },
+            { name: 'Jaipur', img: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=600&auto=format&fit=crop', desc: 'The Pink City' },
+            { name: 'Tokyo', img: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=600&auto=format&fit=crop', desc: 'Neon & Tradition' },
+            { name: 'New York', img: 'https://images.unsplash.com/photo-1496442226666-8d4d0e2815cb?q=80&w=600&auto=format&fit=crop', desc: 'The Concrete Jungle' },
+          ].map((dest, i) => (
+            <div key={i} onClick={() => navigate('/plan', { state: { destination: dest.name } })} className="group cursor-pointer rounded-2xl overflow-hidden relative aspect-[3/4] shadow-md">
+              <img src={dest.img} alt={dest.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-6">
+                <h3 className="text-2xl font-bold text-white mb-1">{dest.name}</h3>
+                <p className="text-sm text-gray-300 font-medium">{dest.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Why Choose Us ────────────────────────────────────────── */}
+      <section className="py-16 px-4 bg-background-secondary w-full">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold text-text-primary text-center mb-12">Why Book With TripPilot?</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="p-8 text-center border-none shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-purple-100 mx-auto flex items-center justify-center mb-6">
+                <Globe size={32} className="text-purple-600" />
+              </div>
+              <h4 className="text-lg font-bold text-text-primary mb-3">AI-Powered Routing</h4>
+              <p className="text-sm text-text-secondary leading-relaxed">
+                Our mathematical engine clusters and orders attractions using K-means and 2-opt, saving you hours of transit time.
               </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold text-success bg-success/10 border border-success/30 px-3 py-1.5 rounded-xl">
-                ✓ Route Optimized (-38% travel time)
-              </span>
-            </div>
+            </Card>
+
+            <Card className="p-8 text-center border-none shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-purple-100 mx-auto flex items-center justify-center mb-6">
+                <Wallet size={32} className="text-purple-600" />
+              </div>
+              <h4 className="text-lg font-bold text-text-primary mb-3">Budget Aware</h4>
+              <p className="text-sm text-text-secondary leading-relaxed">
+                Strict adherence to your predefined budgets, estimating costs for food, activities, and local transport accurately.
+              </p>
+            </Card>
+
+            <Card className="p-8 text-center border-none shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-purple-100 mx-auto flex items-center justify-center mb-6">
+                <Star size={32} className="text-purple-600" />
+              </div>
+              <h4 className="text-lg font-bold text-text-primary mb-3">Curated Experiences</h4>
+              <p className="text-sm text-text-secondary leading-relaxed">
+                We automatically filter out low-rated tourist traps, only keeping highly reviewed spots tailored to your interests.
+              </p>
+            </Card>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <div className="flex items-center justify-between text-xs text-purple-400 mb-1 font-semibold">
-                <span>09:00 AM</span>
-                <span className="flex items-center gap-1 text-warning">
-                  <Star size={11} className="fill-warning" /> 4.8
-                </span>
-              </div>
-              <h5 className="font-semibold text-text-primary text-sm">Louvre Museum</h5>
-              <div className="flex items-center justify-between text-xs text-text-muted mt-2">
-                <span>2h 30m</span>
-                <span>₹1,800</span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <div className="flex items-center justify-between text-xs text-purple-400 mb-1 font-semibold">
-                <span>12:00 PM</span>
-                <span className="flex items-center gap-1 text-warning">
-                  <Star size={11} className="fill-warning" /> 4.7
-                </span>
-              </div>
-              <h5 className="font-semibold text-text-primary text-sm">Café de Flore Lunch</h5>
-              <div className="flex items-center justify-between text-xs text-text-muted mt-2">
-                <span>1h 15m</span>
-                <span>₹950</span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <div className="flex items-center justify-between text-xs text-purple-400 mb-1 font-semibold">
-                <span>02:00 PM</span>
-                <span className="flex items-center gap-1 text-warning">
-                  <Star size={11} className="fill-warning" /> 4.9
-                </span>
-              </div>
-              <h5 className="font-semibold text-text-primary text-sm">Notre-Dame Cathedral</h5>
-              <div className="flex items-center justify-between text-xs text-text-muted mt-2">
-                <span>1h 30m</span>
-                <span className="text-success font-medium">Free</span>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      {/* ── Algorithm Features Section ───────────────────────────────────────── */}
-      <section id="how-it-works" className="max-w-6xl mx-auto w-full pt-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-text-primary tracking-tight">
-            Built with Mathematical Optimization
-          </h2>
-          <p className="text-sm text-text-muted mt-2 max-w-xl mx-auto">
-            Not a generic wrapper. Every day is clustered, ordered, and constrained
-            using specialized algorithms.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 hover:border-purple-500/40">
-            <div className="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center mb-4">
-              <Layers size={20} />
-            </div>
-            <h4 className="text-base font-semibold text-text-primary mb-2">
-              Geographic Clustering
-            </h4>
-            <p className="text-xs text-text-muted leading-relaxed">
-              K-means clustering groups attractions into coherent geographic zones,
-              preventing zigzagging across the city on any single day.
-            </p>
-          </Card>
-
-          <Card className="p-6 hover:border-purple-500/40">
-            <div className="w-10 h-10 rounded-xl bg-accent-pink/20 text-accent-pink flex items-center justify-center mb-4">
-              <Route size={20} />
-            </div>
-            <h4 className="text-base font-semibold text-text-primary mb-2">
-              TSP 2-Opt Optimization
-            </h4>
-            <p className="text-xs text-text-muted leading-relaxed">
-              Combines nearest-neighbour heuristics with 2-opt edge-swapping to
-              uncross inefficient paths and minimize daily commute times.
-            </p>
-          </Card>
-
-          <Card className="p-6 hover:border-purple-500/40">
-            <div className="w-10 h-10 rounded-xl bg-accent-blue/20 text-accent-blue flex items-center justify-center mb-4">
-              <CloudRain size={20} />
-            </div>
-            <h4 className="text-base font-semibold text-text-primary mb-2">
-              Adaptive Constraints
-            </h4>
-            <p className="text-xs text-text-muted leading-relaxed">
-              Real-time awareness of attraction opening hours, strict daily budgets,
-              and weather forecasts to ensure feasible journeys.
-            </p>
-          </Card>
         </div>
       </section>
+      
+      {/* ── CTA ────────────────────────────────────────── */}
+      <section className="py-20 px-4 bg-background text-center max-w-4xl mx-auto">
+        <h2 className="text-3xl font-bold text-text-primary mb-6">Ready to plan your next holiday?</h2>
+        <p className="text-text-secondary mb-8">Join thousands of travelers using TripPilot to organize their journeys effortlessly.</p>
+        <Link to="/plan">
+          <Button size="lg" variant="primary" className="bg-purple-600 hover:bg-purple-700 px-8 py-4 text-lg">
+            Start Planning Now
+          </Button>
+        </Link>
+      </section>
+
     </div>
   );
 };

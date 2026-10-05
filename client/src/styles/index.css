@@ -11,45 +11,45 @@
 /* ── 1. Design Tokens (CSS Custom Properties) ─────────────────────────────── */
 
 :root {
-  /* Purple scale */
+  /* Purple scale - MakeMyTrip-like bold purple */
   --purple-950: #170B2E;
   --purple-900: #241044;
   --purple-800: #32165F;
   --purple-700: #4C1D95;
-  --purple-600: #6D28D9;
-  --purple-500: #8B5CF6;
-  --purple-400: #A78BFA;
-  --purple-300: #C4B5FD;
+  --purple-600: #5A1E96; /* MMT bold purple base */
+  --purple-500: #6B21A8;
+  --purple-400: #9333EA;
+  --purple-300: #C084FC;
 
   /* Accent colors */
   --accent-pink: #E879F9;
   --accent-blue: #818CF8;
   --accent-cyan: #67E8F9;
 
-  /* Backgrounds */
+  /* Backgrounds (Dark mode) */
   --background:           #0B0714;
   --background-secondary: #120B20;
 
-  /* Surface (glass base) */
-  --surface:       rgba(255, 255, 255, 0.06);
-  --surface-hover: rgba(255, 255, 255, 0.09);
+  /* Surface (Solid dark cards instead of glass) */
+  --surface:       #1E1633;
+  --surface-hover: #261D42;
 
-  /* Text */
+  /* Text (Light text for readability on dark) */
   --text-primary:   #F8F7FC;
   --text-secondary: #B8B1C8;
   --text-muted:     #827990;
 
   /* Status */
-  --success: #34D399;
-  --warning: #FBBF24;
-  --danger:  #FB7185;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger:  #EF4444;
 
-  /* Glassmorphism defaults */
-  --glass-bg:     rgba(255, 255, 255, 0.055);
-  --glass-border: rgba(255, 255, 255, 0.09);
-  --glass-blur:   18px;
-  --glass-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-  --glass-radius: 20px;
+  /* Clean defaults instead of glass */
+  --glass-bg:     #1A132B;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur:   0px;
+  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --glass-radius: 12px;
 
   /* Animation */
   --duration-fast:   150ms;
@@ -84,10 +84,8 @@
     color: var(--text-primary);
     background-color: var(--background);
 
-    /* Atmospheric radial gradients — DESIGN.md §4 */
-    background-image:
-      radial-gradient(circle at 15% 10%, rgba(139, 92, 246, 0.18), transparent 30%),
-      radial-gradient(circle at 85% 20%, rgba(232, 121, 249, 0.10), transparent 28%);
+    /* Clean background, no gradients */
+    background-image: none;
     background-attachment: fixed;
 
     min-height: 100dvh;
@@ -101,7 +99,7 @@
 
   /* Selection */
   ::selection {
-    background: rgba(139, 92, 246, 0.35);
+    background: rgba(90, 30, 150, 0.35); /* Bold purple selection */
     color: var(--text-primary);
   }
 
@@ -166,9 +164,7 @@
   .glass-sm {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-radius: 14px;
   }
 
@@ -201,9 +197,9 @@
   }
 
   .btn-primary:hover {
-    opacity: 0.92;
+    opacity: 0.95;
     transform: scale(1.02);
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.45);
+    box-shadow: 0 4px 12px rgba(90, 30, 150, 0.2); /* Remove glow */
   }
 
   .btn-primary:active {
@@ -288,7 +284,7 @@
 
   .input:focus {
     border-color: var(--purple-500);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.15); /* Soft focus ring, no glow */
   }
 
   /* ── Interest Chip ───────────────────────────────────────────────────────────── */
@@ -320,9 +316,9 @@
 
   .chip-active {
     color: #fff;
-    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    background: var(--purple-600); /* Bold purple */
     border-color: transparent;
-    box-shadow: 0 0 12px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 4px 12px rgba(90, 30, 150, 0.15); /* Minimal shadow instead of glow */
   }
 
   /* ── Badge ───────────────────────────────────────────────────────────────────── */
@@ -372,10 +368,10 @@
     right: 0;
     z-index: 50;
     height: 64px;
-    background: rgba(11, 7, 20, 0.7);
+    background: #0B0714; /* Dark solid navbar */
     border-bottom: 1px solid var(--glass-border);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     padding: 0 2rem;
@@ -425,9 +421,9 @@
 
   .day-tab-active {
     color: #fff;
-    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    background: var(--purple-600); /* Solid bold purple */
     border-color: transparent;
-    box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(90, 30, 150, 0.15);
   }
 
   /* ── Timeline line ───────────────────────────────────────────────────────────── */
@@ -535,10 +531,10 @@
   .bg-background-secondary { background-color: var(--background-secondary); }
   .bg-surface              { background-color: var(--surface); }
 
-  /* Glow utilities */
-  .glow-sm { box-shadow: 0 0 12px rgba(139, 92, 246, 0.30); }
-  .glow    { box-shadow: 0 0 24px rgba(139, 92, 246, 0.40); }
-  .glow-lg { box-shadow: 0 0 40px rgba(139, 92, 246, 0.50); }
+  /* Remove Glow utilities and replace with soft shadows */
+  .glow-sm { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+  .glow    { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10); }
+  .glow-lg { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
 
   /* Card lift on hover */
   .card-hover {

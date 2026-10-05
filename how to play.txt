@@ -1,0 +1,97 @@
+Ran command: `lsof -i :5000 -i :3000 2>/dev/null || echo "Ports free"`
+Ran command: `node -e "const http = require('http'); const s = http.createServer().listen(5000, () => { console.log('OK'); s.close(); }).on('error', e => console.error(e.code));"`
+Ran command: `node -e "const http = require('http'); const s = http.createServer().listen(5001, () => { console.log('PORT 5001 IS FREE'); s.close(); }).on('error', e => console.error(e.code));"`
+Viewed vite.config.js:1-20
+Edited vite.config.js
+Edited .env
+Edited .env.example
+Edited env.js
+Ran command: `npm test 2>&1`
+Ran command: `git add . && git commit -m "fix(port): use port 5001 for server to avoid macOS AirPlay Receiver port 5000 conflict"`
+
+### How to Run the Project & Setup Guide
+
+Both the **React frontend** and **Node/Express backend** are completely configured, tested, and ready to run.
+
+---
+
+### Step 1: Check Environment Configuration
+
+Default development configuration files have already been created for you:
+
+1. **Backend Environment** ([`server/.env`](file:///Users/deepesh/Documents/Projects/itenary/server/.env)):
+   ```env
+   PORT=5001
+   NODE_ENV=development
+   MONGODB_URI=mongodb://localhost:27017/trippilot
+   JWT_SECRET=trippilot_super_secret_dev_key_replace_in_prod_12345
+   JWT_EXPIRES_IN=7d
+   GOOGLE_PLACES_API_KEY=
+   OPENWEATHER_API_KEY=
+   ```
+   *(Note: The server port is set to **5001** because macOS AirPlay Receiver uses port 5000 by default).*
+
+2. **Frontend Environment** ([`client/.env`](file:///Users/deepesh/Documents/Projects/itenary/client/.env)):
+   ```env
+   VITE_API_URL=/api
+   ```
+   *(Requests to `/api` are automatically proxied to `http://localhost:5001` via [`vite.config.js`](file:///Users/deepesh/Documents/Projects/itenary/client/vite.config.js)).*
+
+---
+
+### Step 2: Anything You Need to Do?
+
+| Requirement | What to do | Fallback behavior |
+|---|---|---|
+| **MongoDB** | If you have MongoDB installed locally, start it with `brew services start mongodb-community` (or provide a cloud MongoDB Atlas URI in `server/.env`). | **Not required for itinerary generation!** The server has a built-in offline dev mode that allows itinerary generation, clustering, and route optimization even if MongoDB is offline. MongoDB is only required to permanently save trips or register accounts. |
+| **Google Places API Key** | Optional: Add your Google Places key to `GOOGLE_PLACES_API_KEY` in [`server/.env`](file:///Users/deepesh/Documents/Projects/itenary/server/.env). | If left blank, the app seamlessly falls back to the built-in curated attraction dataset (Paris, Jaipur, etc.) with accurate geographic coordinates and opening hours. |
+| **OpenWeather API Key** | Optional: Add your key to `OPENWEATHER_API_KEY` in [`server/.env`](file:///Users/deepesh/Documents/Projects/itenary/server/.env). | If left blank, intelligent weather recommendations still function with simulated conditions. |
+
+---
+
+### Step 3: Start the Development Servers
+
+Open two terminal windows:
+
+#### Terminal 1 — Backend (Express API)
+```bash
+cd /Users/deepesh/Documents/Projects/itenary/server
+npm run dev
+```
+*The API will start on **`http://localhost:5001`** (health check available at `http://localhost:5001/api/health`).*
+
+#### Terminal 2 — Frontend (Vite + React)
+```bash
+cd /Users/deepesh/Documents/Projects/itenary/client
+npm run dev
+```
+*The app will start on **`http://localhost:3000`**.*
+
+---
+
+### Step 4: Open in Your Browser
+
+Navigate to **`http://localhost:3000`**:
+
+1. **Landing Page**: Click **"Create My Itinerary"** or **"Explore"** in the top navigation.
+2. **Plan Trip**: Select destination (e.g. *Paris, France*), set days (e.g. *5 days*), budget (e.g. *₹40,000*), pick interests, and click **"Generate My Itinerary →"**.
+3. **Watch Optimization Engine**: Follow the 5-stage progress animation (*Finding attractions → Grouping nearby places → Optimizing daily routes → Checking opening hours → Checking weather*).
+4. **Interactive Dashboard**:
+   - Switch between **Day 1 to Day 5** tabs.
+   - Inspect the numbered timeline stops matching the interactive map.
+   - Test **"Regenerate Day"** with a custom reason (e.g. *More food*, *Too expensive*).
+   - Test **"Save Itinerary"** to save to **My Trips**.
+
+---
+
+### Testing & Verification Commands
+
+To run all automated verification checks at any time:
+
+```bash
+# Run all 119 backend engine, model, and API tests
+cd /Users/deepesh/Documents/Projects/itenary/server && npm test
+
+# Run frontend production build check
+cd /Users/deepesh/Documents/Projects/itenary/client && npm run build
+```

@@ -53,6 +53,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (googleToken) => {
+    setIsLoading(true);
+    try {
+      const res = await api.post('/auth/google', { token: googleToken });
+      if (res.data?.token) {
+        setToken(res.data.token);
+        setUser(res.data.user);
+        localStorage.setItem('trippilot_token', res.data.token);
+        localStorage.setItem('trippilot_user', JSON.stringify(res.data.user));
+      }
+      return res.data;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -69,6 +85,7 @@ export const AuthProvider = ({ children }) => {
         isLoading,
         login,
         register,
+        loginWithGoogle,
         logout,
       }}
     >
