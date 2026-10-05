@@ -7,9 +7,9 @@
     .brand-pilot { fill: #6D3FD9; }
     .brand-sub { fill: #666053; }
     @media (prefers-color-scheme: dark) {
-      .brand-trip { fill: #f5f2eb; }
-      .brand-pilot { fill: #A78BFA; }
-      .brand-sub { fill: #9e9a91; }
+      .brand-trip { fill: #ffffff !important; }
+      .brand-pilot { fill: #c084fc !important; }
+      .brand-sub { fill: #b8b3a8 !important; }
     }
   </style>
 

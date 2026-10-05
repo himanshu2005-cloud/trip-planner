@@ -58,12 +58,14 @@ export const Logo = ({
       >
         <title>TripPilot Itinerary Planner</title>
         {/* Icon Mark (favicon.svg) */}
-        <circle cx="130" cy="150" r="62" fill="#6D3FD9" />
-        <path d="M92 196 C100 176 108 172 124 166" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeDasharray="1 9" />
-        <polygon points="180,114 98,150 130,161 146,192" fill="#FFFFFF" />
-        <path d="M130 161 L180 114" fill="none" stroke="#6D3FD9" strokeWidth="4" strokeLinecap="round" />
+        <g style={{ filter: isDark ? 'drop-shadow(0 0 10px rgba(109, 63, 217, 0.5))' : 'none' }}>
+          <circle cx="130" cy="150" r="62" fill="#6D3FD9" />
+          <path d="M92 196 C100 176 108 172 124 166" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeDasharray="1 9" />
+          <polygon points="180,114 98,150 130,161 146,192" fill="#FFFFFF" />
+          <path d="M130 161 L180 114" fill="none" stroke="#6D3FD9" strokeWidth="4" strokeLinecap="round" />
+        </g>
 
-        {/* Wordmark */}
+        {/* Wordmark: Trip in pure crisp white in dark mode, obsidian in light mode */}
         <text
           x="218"
           y="170"
@@ -71,9 +73,16 @@ export const Logo = ({
           fontSize="66"
           fontWeight="700"
           letterSpacing="-2"
-          fill={isDark ? '#f5f2eb' : '#18181c'}
+          className="dark:fill-white fill-[#18181c]"
+          style={{ fill: isDark ? '#FFFFFF' : '#18181c' }}
         >
-          Trip<tspan fill={isDark ? '#A78BFA' : '#6D3FD9'}>Pilot</tspan>
+          Trip
+          <tspan
+            className="dark:fill-[#c084fc] fill-[#6D3FD9]"
+            style={{ fill: isDark ? '#c084fc' : '#6D3FD9' }}
+          >
+            Pilot
+          </tspan>
         </text>
         <text
           x="222"
@@ -82,7 +91,8 @@ export const Logo = ({
           fontSize="12"
           fontWeight="600"
           letterSpacing="4"
-          fill={isDark ? '#9e9a91' : '#686255'}
+          className="dark:fill-[#b4afa4] fill-[#686255]"
+          style={{ fill: isDark ? '#b4afa4' : '#686255' }}
         >
           TRIP PLANNER · INDIA
         </text>
