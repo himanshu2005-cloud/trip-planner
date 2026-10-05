@@ -3,50 +3,47 @@ import { Link } from 'react-router-dom';
 
 /**
  * Logo
- * Brand logo using favicon.svg with optional wordmark and custom sizing.
+ * Brand logo rendering favicon.svg directly across the application.
  */
 export const Logo = ({
   className = '',
-  showWordmark = true,
-  iconOnly = false,
   size = 'md', // 'sm', 'md', 'lg'
+  iconOnly = false,
 }) => {
-  const iconSizes = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8',
-    lg: 'h-10 w-10',
+  const heights = {
+    sm: 'h-7 sm:h-8',
+    md: 'h-9 sm:h-10',
+    lg: 'h-12 sm:h-14',
   };
+
+  if (iconOnly) {
+    return (
+      <Link
+        to="/"
+        className={`inline-flex items-center transition-opacity hover:opacity-90 ${className}`}
+        title="TripPilot — Trip Planner"
+      >
+        <svg viewBox="68 88 124 124" className={size === 'sm' ? 'w-6 h-6' : size === 'lg' ? 'w-10 h-10' : 'w-8 h-8'}>
+          <circle cx="130" cy="150" r="62" fill="#6D3FD9" />
+          <path d="M92 196 C100 176 108 172 124 166" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeDasharray="1 9" />
+          <polygon points="180,114 98,150 130,161 146,192" fill="#FFFFFF" />
+          <path d="M130 161 L180 114" fill="none" stroke="#6D3FD9" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+      </Link>
+    );
+  }
 
   return (
     <Link
       to="/"
-      className={`inline-flex items-center gap-3 group transition-opacity hover:opacity-90 ${className}`}
-      title="TripPilot — Precision Trip Planner"
+      className={`inline-flex items-center transition-opacity hover:opacity-90 ${className}`}
+      title="TripPilot — Trip Planner"
     >
-      {/* Favicon Icon Part (Paper plane in purple circle) */}
-      <div className={`relative shrink-0 overflow-hidden rounded-full ${iconSizes[size] || iconSizes.md}`}>
-        <img
-          src="/favicon.svg"
-          alt="TripPilot"
-          className="w-full h-full object-cover scale-[1.3] -translate-x-[2%]"
-        />
-      </div>
-
-      {showWordmark && !iconOnly && (
-        <div className="flex flex-col">
-          <div className="flex items-baseline gap-1">
-            <span className="font-sans text-[13px] sm:text-[14px] font-semibold tracking-[0.14em] text-[#f5f2eb]">
-              TRIP<span className="text-[#cebfdf]">PILOT</span>
-            </span>
-            <span className="font-mono text-[9px] tracking-[0.2em] text-[#7a5293] uppercase hidden sm:inline">
-              PLANNER
-            </span>
-          </div>
-          <span className="font-mono text-[8px] tracking-[0.25em] text-[#5c5851] uppercase -mt-0.5">
-            PRECISION ITINERARY
-          </span>
-        </div>
-      )}
+      <img
+        src="/favicon.svg"
+        alt="TripPilot Itinerary Planner"
+        className={`${heights[size] || heights.md} w-auto object-contain`}
+      />
     </Link>
   );
 };
