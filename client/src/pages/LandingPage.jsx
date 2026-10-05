@@ -1,882 +1,597 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import EditorialImage from '../components/editorial/EditorialImage';
-import TravelButton from '../components/editorial/TravelButton';
+import {
+  Sparkles,
+  MapPin,
+  Calendar,
+  IndianRupee,
+  ArrowRight,
+  Clock,
+  Star,
+  Send,
+  Navigation,
+  Compass,
+  Check,
+  Flame,
+  MessageSquare,
+} from 'lucide-react';
 import Logo from '../components/ui/Logo';
+import { getItineraryForDestination } from '../utils/mockItinerary';
 
-// Curated authentic Indian preview datasets for live home page exploration
-const INDIAN_DESTINATIONS = [
-  {
-    id: 'varanasi',
-    name: 'Varanasi',
-    state: 'Uttar Pradesh',
-    tagline: 'Ancient ghats, dawn boat rides, silk weavers & evening Ganga Aarti.',
-    days: 3,
-    budget: 15000,
-    bestSeason: 'OCTOBER — MARCH',
-    heroImage: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=2000&auto=format&fit=crop',
-    waypoints: ['Assi Ghat', 'Kashi Vishwanath', 'Sarnath Stupa', 'Dashashwamedh'],
-    interests: ['Spiritual', 'Heritage', 'Silk Weaving', 'Ghats'],
-    previewStops: [
-      {
-        time: '05:30',
-        name: 'Assi Ghat & Subah-e-Banaras',
-        category: 'Spiritual Sunrise',
-        cost: 'Free',
-        duration: '90 mins',
-        desc: 'Vedic chants and classical morning sitar ragas as the dawn mist lifts over the holy Ganges.',
-        photo: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=1200&auto=format&fit=crop',
-      },
-      {
-        time: '08:00',
-        name: 'Ram Bhandar Traditional Breakfast',
-        category: 'Heritage Food',
-        cost: '₹150',
-        duration: '45 mins',
-        desc: 'Freshly fried Banarasi kachori sabzi and hot jalebis served on sal leaf plates in Thatheri Bazaar.',
-      },
-      {
-        time: '10:30',
-        name: 'Kashi Vishwanath Sacred Corridor',
-        category: 'Ancient Sanctum',
-        cost: '₹300',
-        duration: '120 mins',
-        desc: 'The newly constructed marble corridor linking the river ghats directly to the Jyotirlinga sanctum.',
-        photo: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=1200&auto=format&fit=crop',
-      },
-      {
-        time: '18:15',
-        name: 'Dashashwamedh Ghat Maha Aarti',
-        category: 'Evening Spectacle',
-        cost: '₹250 (Boat)',
-        duration: '90 mins',
-        desc: 'Witnessing the grand synchronized brass lamp ceremony from a wooden boat on the river.',
-        photo: 'https://images.unsplash.com/photo-1571536802807-30451e3955d8?q=80&w=1200&auto=format&fit=crop',
-      },
-    ],
-  },
+// Trending Indian itineraries for Layla-style cards
+const TRENDING_TRIPS = [
   {
     id: 'jaipur',
-    name: 'Jaipur',
+    destination: 'Jaipur, Rajasthan',
     state: 'Rajasthan',
-    tagline: 'Amber hill fortresses, pink sandstone jharokhas & royal stepwells.',
+    category: 'Royal Heritage',
     days: 4,
     budget: 24000,
-    bestSeason: 'NOVEMBER — FEBRUARY',
-    heroImage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=2000&auto=format&fit=crop',
-    waypoints: ['Amber Palace', 'Hawa Mahal', 'City Palace', 'Nahargarh Fort'],
-    interests: ['Forts', 'Architecture', 'Royal History', 'Bazaars'],
-    previewStops: [
-      {
-        time: '08:30',
-        name: 'Amber Palace (Amer Fort)',
-        category: 'UNESCO Royal Fort',
-        cost: '₹500',
-        duration: '150 mins',
-        desc: 'Opulent Rajput fortress overlooking Maota Lake, famous for the mirror-inlaid Sheesh Mahal.',
-        photo: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1200&auto=format&fit=crop',
-      },
-      {
-        time: '11:30',
-        name: 'Panna Meena ka Kund Stepwell',
-        category: 'Ancient Engineering',
-        cost: 'Free',
-        duration: '45 mins',
-        desc: '16th-century geometric stepwell with interlocking criss-cross yellow sandstone steps.',
-      },
-      {
-        time: '14:00',
-        name: 'Hawa Mahal (Palace of Winds)',
-        category: 'Iconic Monument',
-        cost: '₹200',
-        duration: '60 mins',
-        desc: '953 carved sandstone windows capturing natural desert breezes in the heart of the walled city.',
-        photo: 'https://images.unsplash.com/photo-1609840114035-3c981b782dfe?q=80&w=1200&auto=format&fit=crop',
-      },
-      {
-        time: '17:00',
-        name: 'Nahargarh Fort Sunset Point',
-        category: 'Panoramic Ridge',
-        cost: '₹200',
-        duration: '90 mins',
-        desc: 'Sunset over the entire Pink City viewed from the defensive stone ramparts of the Aravalli hills.',
-      },
-    ],
+    rating: 4.9,
+    reviews: 1420,
+    tagline: 'Amber hill fortresses, pink sandstone jharokhas & royal stepwells.',
+    highlights: ['Amber Fort', 'Hawa Mahal', 'City Palace', 'Panna Meena Kund'],
+    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1200&auto=format&fit=crop',
+    curatedBy: 'TripPilot AI Verified',
+  },
+  {
+    id: 'varanasi',
+    destination: 'Varanasi, Uttar Pradesh',
+    state: 'Uttar Pradesh',
+    category: 'Spiritual & Ghats',
+    days: 3,
+    budget: 15000,
+    rating: 4.9,
+    reviews: 1890,
+    tagline: 'Ancient stone ghats, dawn boat rides on the Ganges & evening Maha Aarti.',
+    highlights: ['Assi Ghat Dawn', 'Kashi Vishwanath', 'Sarnath Stupa', 'Dashashwamedh Aarti'],
+    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=1200&auto=format&fit=crop',
+    curatedBy: 'Top Cultural Pick',
   },
   {
     id: 'kerala',
-    name: 'Alleppey & Munnar',
+    destination: 'Alleppey & Munnar, Kerala',
     state: 'Kerala',
-    tagline: 'Misty tea estates, spice trails & slow wooden backwater houseboats.',
+    category: 'Backwaters & Hills',
     days: 5,
     budget: 38000,
-    bestSeason: 'SEPTEMBER — MARCH',
-    heroImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=2000&auto=format&fit=crop',
-    waypoints: ['Vembanad Lake', 'Munnar Tea Hills', 'Eravikulam', 'Fort Kochi'],
-    interests: ['Backwaters', 'Tea Plantations', 'Nature', 'Ayurveda'],
-    previewStops: [
-      {
-        time: '09:00',
-        name: 'Private Kettuvallam Houseboat Embarkation',
-        category: 'Slow Backwaters',
-        cost: '₹4,500',
-        duration: '180 mins',
-        desc: 'Gliding silently through narrow palm-shaded canals bordered by paddy fields and village life.',
-        photo: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1200&auto=format&fit=crop',
-      },
-      {
-        time: '13:00',
-        name: 'Traditional Karimeen & Rice Thali Lunch',
-        category: 'Coastal Feast',
-        cost: '₹600',
-        duration: '60 mins',
-        desc: 'Pearl spot fish cooked in banana leaf with unpolished red matta rice and coconut curries.',
-      },
-      {
-        time: '15:30',
-        name: 'Kumarakom Bird Sanctuary Nature Walk',
-        category: 'Wetlands',
-        cost: '₹150',
-        duration: '90 mins',
-        desc: 'Walking under canopies of rubber trees and spotting migratory Siberian egrets and kingfishers.',
-      },
-      {
-        time: '18:30',
-        name: 'Backwater Sunset over Vembanad Lake',
-        category: 'Twilight Golden Hour',
-        cost: 'Free',
-        duration: '60 mins',
-        desc: 'Watching Chinese fishing nets silhouette against violet dusk reflections on the open lake.',
-      },
-    ],
+    rating: 4.9,
+    reviews: 980,
+    tagline: 'Private wooden kettuvallam houseboats, tea estate mist & spice trails.',
+    highlights: ['Vembanad Backwaters', 'Munnar Tea Hills', 'Eravikulam Park', 'Fort Kochi Nets'],
+    image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1200&auto=format&fit=crop',
+    curatedBy: 'Slow Travel Choice',
+  },
+  {
+    id: 'udaipur',
+    destination: 'Udaipur, Rajasthan',
+    state: 'Rajasthan',
+    category: 'Lakes & Palaces',
+    days: 4,
+    budget: 28000,
+    rating: 4.8,
+    reviews: 1120,
+    tagline: 'The City of Lakes: marble palaces, sunset cruises over Pichola & havelis.',
+    highlights: ['City Palace Complex', 'Lake Pichola Cruise', 'Jag Mandir', 'Saheliyon-ki-Bari'],
+    image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?q=80&w=1200&auto=format&fit=crop',
+    curatedBy: 'Romantic Heritage',
   },
   {
     id: 'ladakh',
-    name: 'Leh & Nubra Valley',
+    destination: 'Leh & Nubra Valley, Ladakh',
     state: 'Ladakh',
-    tagline: 'High Himalayan mountain passes, cliffside monasteries & sand dunes.',
+    category: 'Himalayan Adventures',
     days: 6,
     budget: 45000,
-    bestSeason: 'MAY — SEPTEMBER',
-    heroImage: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=2000&auto=format&fit=crop',
-    waypoints: ['Thiksey Monastery', 'Khardung La Pass', 'Hunder Sand Dunes', 'Pangong Tso'],
-    interests: ['Himalayas', 'Monasteries', 'High Altitude', 'Trekking'],
-    previewStops: [
-      {
-        time: '06:00',
-        name: 'Thiksey Monastery Morning Puja',
-        category: 'Tibetan Chanting',
-        cost: '₹100',
-        duration: '120 mins',
-        desc: 'Deep brass horns echo across the Indus valley during dawn prayers at the 12-storey cliff monastery.',
-        photo: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1200&auto=format&fit=crop',
-      },
-      {
-        time: '10:30',
-        name: 'Shey Palace & Giant Shakyamuni Buddha',
-        category: 'Historic Kingdom',
-        cost: '₹50',
-        duration: '75 mins',
-        desc: 'Former summer retreat of the Ladakhi kings housing a 12-meter copper and gold Buddha.',
-      },
-      {
-        time: '14:00',
-        name: 'Shanti Stupa Panoramic Viewpoint',
-        category: 'Peace Stupa',
-        cost: 'Free',
-        duration: '60 mins',
-        desc: 'White-domed Buddhist chorten perched on a steep hill overlooking snowcapped Stok Kangri.',
-      },
-      {
-        time: '17:30',
-        name: 'Leh Old Town Heritage Walk & Momos',
-        category: 'Bazaar & Food',
-        cost: '₹250',
-        duration: '90 mins',
-        desc: 'Mud-brick alleyways beneath Leh Palace, steaming bowls of Thukpa and butter tea.',
-      },
-    ],
+    rating: 4.9,
+    reviews: 750,
+    tagline: 'High mountain passes, cliffside monasteries & azure Pangong Tso.',
+    highlights: ['Thiksey Monastery', 'Pangong Tso', 'Khardung La Pass', 'Hunder Dunes'],
+    image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1200&auto=format&fit=crop',
+    curatedBy: 'High Altitude Expedition',
   },
+  {
+    id: 'hampi',
+    destination: 'Hampi, Karnataka',
+    state: 'Karnataka',
+    category: 'Ancient Ruins',
+    days: 3,
+    budget: 16000,
+    rating: 4.8,
+    reviews: 840,
+    tagline: 'Vijayanagara empire boulders, stone chariots & Tungabhadra coracles.',
+    highlights: ['Virupaksha Temple', 'Vittala Stone Chariot', 'Matanga Sunrise', 'Coracle Ride'],
+    image: 'https://images.unsplash.com/photo-1600100397608-f010f4439c05?q=80&w=1200&auto=format&fit=crop',
+    curatedBy: 'Archaeology Special',
+  },
+];
+
+// Quick inspiration prompts for Layla-style input
+const INSPIRATION_PROMPTS = [
+  { label: '🏰 4 Days in Jaipur Forts', dest: 'Jaipur, Rajasthan', days: 4, budget: 24000, theme: 'Royal Forts' },
+  { label: '🛕 3 Days in Varanasi & Ghats', dest: 'Varanasi, Uttar Pradesh', days: 3, budget: 15000, theme: 'Spiritual' },
+  { label: '🌴 5 Days Kerala Houseboat & Tea', dest: 'Alleppey & Munnar, Kerala', days: 5, budget: 38000, theme: 'Backwaters' },
+  { label: '🏔️ 6 Days Ladakh High Passes', dest: 'Leh & Nubra Valley, Ladakh', days: 6, budget: 45000, theme: 'Himalayas' },
+  { label: '🌊 4 Days Udaipur Lakes & Havelis', dest: 'Udaipur, Rajasthan', days: 4, budget: 28000, theme: 'Lakes' },
 ];
 
 export const LandingPage = () => {
   const navigate = useNavigate();
 
-  // Quick Trip Planner Form State
-  const [selectedCity, setSelectedCity] = useState('Varanasi, Uttar Pradesh');
-  const [tripDays, setTripDays] = useState(3);
-  const [budgetTier, setBudgetTier] = useState(15000);
-  const [travelTheme, setTravelTheme] = useState('Spiritual & Heritage');
-  const [transitMode, setTransitMode] = useState('Vande Bharat / Express');
+  // Layla-style conversational prompt bar state
+  const [chatPrompt, setChatPrompt] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All India');
 
-  // Live Itinerary Preview State
-  const [previewCityId, setPreviewCityId] = useState('varanasi');
+  // Interactive AI Assistant chat preview state
+  const [activeDemoPrompt, setActiveDemoPrompt] = useState('food'); // 'food' | 'heat' | 'budget'
+  const [activePreviewCity, setActivePreviewCity] = useState('jaipur');
   const [activePreviewDay, setActivePreviewDay] = useState(1);
 
-  // Weather Contingency Simulator State
-  const [weatherScenario, setWeatherScenario] = useState('monsoon'); // 'monsoon' | 'summer-heat'
+  const previewTrip =
+    TRENDING_TRIPS.find((t) => t.id === activePreviewCity) || TRENDING_TRIPS[0];
+  const previewItinerary = getItineraryForDestination(previewTrip.destination);
+  const currentDayData =
+    previewItinerary.find((d) => d.dayNumber === activePreviewDay) ||
+    previewItinerary[0] || { stops: [] };
 
-  const activeCityData =
-    INDIAN_DESTINATIONS.find((d) => d.id === previewCityId) ||
-    INDIAN_DESTINATIONS[0];
+  const handlePromptSubmit = (e) => {
+    e?.preventDefault();
+    const query = chatPrompt.trim();
+    let matchedDest = 'Jaipur, Rajasthan';
+    let matchedDays = 4;
+    let matchedBudget = 25000;
 
-  const handleLaunchPlan = () => {
+    const qLower = query.toLowerCase();
+    if (qLower.includes('varanasi') || qLower.includes('banaras') || qLower.includes('kashi')) {
+      matchedDest = 'Varanasi, Uttar Pradesh';
+      matchedDays = 3;
+      matchedBudget = 15000;
+    } else if (qLower.includes('kerala') || qLower.includes('munnar') || qLower.includes('alleppey')) {
+      matchedDest = 'Alleppey & Munnar, Kerala';
+      matchedDays = 5;
+      matchedBudget = 38000;
+    } else if (qLower.includes('udaipur')) {
+      matchedDest = 'Udaipur, Rajasthan';
+      matchedDays = 4;
+      matchedBudget = 28000;
+    } else if (qLower.includes('ladakh') || qLower.includes('leh')) {
+      matchedDest = 'Leh & Nubra Valley, Ladakh';
+      matchedDays = 6;
+      matchedBudget = 45000;
+    } else if (qLower.includes('hampi')) {
+      matchedDest = 'Hampi, Karnataka';
+      matchedDays = 3;
+      matchedBudget = 16000;
+    }
+
     navigate('/itinerary', {
       state: {
         criteria: {
-          destination: selectedCity,
-          numberOfDays: tripDays,
-          budget: budgetTier,
-          interests: [travelTheme, 'Cultural Immersion', 'Local Transit'],
+          destination: matchedDest,
+          numberOfDays: matchedDays,
+          budget: matchedBudget,
+          interests: ['Curated Exploration', 'Local Culture'],
+        },
+        generatedData: {
+          destination: matchedDest,
+          numberOfDays: matchedDays,
+          budget: matchedBudget,
+          interests: ['Curated Exploration', 'Local Culture'],
+          itinerary: getItineraryForDestination(matchedDest),
         },
       },
     });
   };
 
-  const handleOpenPreviewTrip = (dest) => {
+  const handleLaunchTrip = (trip) => {
     navigate('/itinerary', {
       state: {
         criteria: {
-          destination: `${dest.name}, ${dest.state}`,
-          numberOfDays: dest.days,
-          budget: dest.budget,
-          interests: dest.interests,
+          destination: trip.destination,
+          numberOfDays: trip.days,
+          budget: trip.budget,
+          interests: trip.highlights,
+        },
+        generatedData: {
+          destination: trip.destination,
+          numberOfDays: trip.days,
+          budget: trip.budget,
+          interests: trip.highlights,
+          itinerary: getItineraryForDestination(trip.destination),
         },
       },
     });
   };
+
+  const filteredTrips =
+    activeCategory === 'All India'
+      ? TRENDING_TRIPS
+      : TRENDING_TRIPS.filter((t) =>
+          t.category.toLowerCase().includes(activeCategory.toLowerCase()) ||
+          t.state.toLowerCase().includes(activeCategory.toLowerCase())
+        );
 
   return (
     <div className="w-full flex flex-col bg-[#0c0c0f] text-[#f5f2eb]">
-      {/* ── 1. CINEMATIC HERO: VARANASI / THE SACRED GHATS ────────────────── */}
-      <section className="relative w-full min-h-[90vh] flex flex-col justify-between p-6 sm:p-12 lg:p-16 overflow-hidden">
-        {/* Background Atmospheric Photography */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=2200&auto=format&fit=crop"
-            alt="Varanasi Ghats at Dawn"
-            className="w-full h-full object-cover filter brightness-[0.72] contrast-[1.08] transition-transform duration-1000 scale-[1.02]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0f] via-[#0c0c0f]/45 to-[#0c0c0f]/30" />
-          <div className="absolute inset-0 bg-[#0c0c0f]/20 backdrop-brightness-[0.95]" />
+      {/* ── 1. LAYLA-STYLE CONVERSATIONAL HERO ─────────────────────────────── */}
+      <section className="relative w-full pt-16 pb-20 px-6 sm:px-12 lg:px-16 flex flex-col items-center text-center overflow-hidden border-b border-[#1c1c23]">
+        {/* Subtle Background Radial Atmosphere */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#6D3FD9]/15 rounded-full blur-[120px] pointer-events-none" />
+
+        {/* Brand Badge */}
+        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#181822] border border-[#7a5293]/60 text-xs font-mono text-[#cebfdf] mb-8 shadow-sm">
+          <div className="w-4 h-4 rounded-full overflow-hidden shrink-0">
+            <img src="/favicon.svg" alt="TripPilot" className="w-full h-full object-cover scale-[1.3]" />
+          </div>
+          <span>AI-POWERED TRIP PLANNER FOR INDIA</span>
         </div>
 
-        {/* Top Editorial Dispatch Bar */}
-        <div className="relative z-10 flex items-center justify-between border-b border-white/[0.12] pb-4 pt-2">
-          <div className="flex items-center gap-4">
-            {/* Favicon Logo Icon */}
-            <div className="w-7 h-7 rounded-full overflow-hidden border border-white/20 bg-purple-900/60 shrink-0">
-              <img src="/favicon.svg" alt="TripPilot" className="w-full h-full object-cover scale-[1.3]" />
-            </div>
-            <span className="font-mono text-[10px] tracking-[0.25em] text-[#e7e3da] uppercase">
-              SMART INDIAN TRIP PLANNER · 2027
-            </span>
-            <span className="hidden sm:inline text-white/30 text-xs font-mono">/</span>
-            <span className="hidden sm:inline font-mono text-[10px] tracking-[0.2em] text-[#9e9a91]">
-              25.3176° N, 82.9739° E
-            </span>
-          </div>
+        {/* Large Modern Headline */}
+        <h1 className="font-serif-headline text-4xl sm:text-6xl lg:text-7xl text-[#f5f2eb] max-w-4xl tracking-tight leading-[1.08] mb-6">
+          Plan Your Dream Trip to India in Seconds.
+        </h1>
 
-          <div className="font-mono text-[10px] tracking-[0.22em] text-[#cebfdf] uppercase">
-            BEST EXPEDITION SEASON: OCT — MARCH
-          </div>
-        </div>
+        <p className="font-sans text-base sm:text-lg text-[#9e9a91] max-w-2xl leading-relaxed mb-10">
+          Ask TripPilot anything: destinations, pacing, budget in ₹, and local hidden gems. We sequence every hour with verified Indian coordinates and zero dead mileage.
+        </p>
 
-        {/* Center / Hero Typography & Quick Dispatch */}
-        <div className="relative z-10 max-w-4xl mt-auto pt-20 pb-8">
-          <div className="flex items-baseline gap-3 mb-2 text-[11px] sm:text-[12px] font-sans font-medium tracking-[0.3em] uppercase text-[#cebfdf]">
-            <span>UTTAR PRADESH, INDIA</span>
-            <span className="text-[#5c5851]">—</span>
-            <span className="text-[#9e9a91]">FEATURED EXPEDITION</span>
-          </div>
-
-          <h1 className="font-serif-headline text-5xl sm:text-7xl lg:text-8xl tracking-tight text-[#f5f2eb] mb-5">
-            Varanasi
-          </h1>
-
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
-            <p className="md:col-span-8 font-serif-subheadline text-xl sm:text-2xl lg:text-3xl text-[#e7e3da] leading-relaxed max-w-2xl">
-              "Three days between ancient stone ghats, dawn boat rides, silk weavers, and evening Ganga Aarti."
-            </p>
-
-            <div className="md:col-span-4 flex md:justify-end gap-3">
-              <TravelButton
-                variant="violet"
-                arrow
-                onClick={() =>
-                  navigate('/itinerary', {
-                    state: {
-                      criteria: {
-                        destination: 'Varanasi, Uttar Pradesh',
-                        numberOfDays: 3,
-                        budget: 15000,
-                        interests: ['Spiritual', 'Heritage', 'Silk Weavers'],
-                      },
-                    },
-                  })
-                }
-              >
-                OPEN VARANASI ITINERARY
-              </TravelButton>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 w-full h-[1px] bg-white/[0.12]" />
-      </section>
-
-      {/* ── 2. INTERACTIVE INDIAN TRIP COMPOSER (ALL OPTIONS & DETAILS DIRECTLY ON MAIN PAGE) ── */}
-      <section className="py-16 sm:py-20 px-6 sm:px-12 lg:px-16 border-b border-[#1c1c23] bg-[#0f0f14]">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header with Logo Emblem */}
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-4 border-b border-[#23232c] mb-10 gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full overflow-hidden bg-purple-900/50 border border-[#7a5293]">
-                <img src="/favicon.svg" alt="TripPilot" className="w-full h-full object-cover scale-[1.3]" />
-              </div>
-              <div>
-                <span className="eyebrow block text-[#7a5293]">
-                  01 / INTERACTIVE PLANNER
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl text-[#f5f2eb]">
-                  Compose Your Indian Itinerary
-                </h2>
-              </div>
-            </div>
-            <span className="font-mono text-[11px] text-[#9e9a91] tracking-wider uppercase">
-              ALGORITHMIC ROUTING · ZERO DEAD MILEAGE
-            </span>
-          </div>
-
-          {/* Complete Options Dashboard Container */}
-          <div className="bg-[#131317] border border-[#23232c] p-6 sm:p-10 flex flex-col gap-8 shadow-editorial">
-            {/* Row A: Target Destination Selection with Quick Pills */}
-            <div className="flex flex-col gap-3">
-              <div className="flex items-baseline justify-between">
-                <label className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#cebfdf]">
-                  TARGET DESTINATION (INDIA ONLY)
-                </label>
-                <span className="text-[11px] text-[#5c5851] font-mono">
-                  Select popular circuit or type custom
-                </span>
-              </div>
-
-              {/* Direct Input */}
+        {/* Sleek Conversational Prompt Bar (Centerpiece like Layla.ai) */}
+        <div className="w-full max-w-3xl mb-8">
+          <form
+            onSubmit={handlePromptSubmit}
+            className="w-full bg-[#131317] border border-[#2d2d38] hover:border-[#7a5293] focus-within:border-[#8b5cf6] p-2 sm:p-2.5 rounded-2xl shadow-editorial flex flex-col sm:flex-row items-center gap-2 transition-all duration-200"
+          >
+            <div className="flex items-center gap-3 w-full px-3 py-2 sm:py-0">
+              <Sparkles size={18} className="text-[#a78bfa] shrink-0 animate-pulse" />
               <input
                 type="text"
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                placeholder="e.g. Jaipur, Rajasthan or Munnar, Kerala"
-                className="editorial-input text-base sm:text-lg bg-[#0c0c0f] border-[#23232c] focus:border-[#7a5293] py-3.5 px-4 text-[#f5f2eb]"
+                value={chatPrompt}
+                onChange={(e) => setChatPrompt(e.target.value)}
+                placeholder="Ask TripPilot: e.g. 4 days in Jaipur with hill forts, stepwells and street food..."
+                className="w-full bg-transparent text-[#f5f2eb] placeholder-[#6e6b66] text-sm sm:text-base outline-none font-sans"
               />
-
-              {/* Quick Destination Pills for India */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                {[
-                  'Jaipur, Rajasthan',
-                  'Varanasi, Uttar Pradesh',
-                  'Alleppey & Munnar, Kerala',
-                  'Udaipur, Rajasthan',
-                  'Leh, Ladakh',
-                  'Old Goa & South Beaches',
-                  'Hampi, Karnataka',
-                  'Rishikesh, Uttarakhand',
-                ].map((dest) => (
-                  <button
-                    key={dest}
-                    type="button"
-                    onClick={() => setSelectedCity(dest)}
-                    className={`font-mono text-[11px] px-3 py-1.5 border transition-all cursor-pointer ${
-                      selectedCity === dest
-                        ? 'bg-[#432357] text-[#f5f2eb] border-[#7a5293]'
-                        : 'bg-[#18181f] text-[#9e9a91] border-[#23232c] hover:border-[#32323e] hover:text-[#f5f2eb]'
-                    }`}
-                  >
-                    {dest}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {/* Row B: 3 Columns (Duration, Indian Budget Tier in ₹, Transit Mode) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[#1c1c23]">
-              {/* Duration Options */}
-              <div className="flex flex-col gap-2.5">
-                <label className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#9e9a91]">
-                  DURATION
-                </label>
-                <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-                  {[
-                    { label: '3 Days', desc: 'Weekend Escape', val: 3 },
-                    { label: '5 Days', desc: 'Classic Circuit', val: 5 },
-                    { label: '7 Days', desc: 'Deep Heritage', val: 7 },
-                    { label: '10 Days', desc: 'Grand Tour', val: 10 },
-                  ].map((d) => (
-                    <button
-                      key={d.val}
-                      type="button"
-                      onClick={() => setTripDays(d.val)}
-                      className={`p-2.5 text-left border transition-all cursor-pointer ${
-                        tripDays === d.val
-                          ? 'bg-[#432357] border-[#7a5293] text-[#f5f2eb]'
-                          : 'bg-[#18181f] border-[#23232c] text-[#9e9a91] hover:border-[#32323e]'
-                      }`}
-                    >
-                      <span className="block font-semibold">{d.label}</span>
-                      <span className="text-[10px] text-[#5c5851]">{d.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Indian Budget Tiers (₹) */}
-              <div className="flex flex-col gap-2.5">
-                <label className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#9e9a91]">
-                  BUDGET ESTIMATE (₹ INR)
-                </label>
-                <div className="grid grid-cols-1 gap-2 font-mono text-xs">
-                  {[
-                    { label: '₹15,000', tier: 'Backpacker / Budget', desc: 'Hostels, autos, street thalis' },
-                    { label: '₹35,000', tier: 'Heritage Haveli Comfort', desc: 'AC cabs, boutique stays, entry passes' },
-                    { label: '₹75,000+', tier: 'Royal Luxury Dossier', desc: 'Palace stays, private chauffeur, fine dining' },
-                  ].map((b) => (
-                    <button
-                      key={b.label}
-                      type="button"
-                      onClick={() => setBudgetTier(parseInt(b.label.replace(/[^\d]/g, '')))}
-                      className={`p-2 border text-left flex items-baseline justify-between transition-all cursor-pointer ${
-                        budgetTier === parseInt(b.label.replace(/[^\d]/g, ''))
-                          ? 'bg-[#432357] border-[#7a5293] text-[#f5f2eb]'
-                          : 'bg-[#18181f] border-[#23232c] text-[#9e9a91] hover:border-[#32323e]'
-                      }`}
-                    >
-                      <div>
-                        <span className="font-semibold mr-2">{b.label}</span>
-                        <span className="text-[11px] text-[#9e9a91]">{b.tier}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Travel Theme & Transit Mode */}
-              <div className="flex flex-col gap-2.5">
-                <label className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#9e9a91]">
-                  PRIMARY VIBE & TRANSIT IN INDIA
-                </label>
-                <div className="flex flex-col gap-2 font-mono text-xs">
-                  <select
-                    value={travelTheme}
-                    onChange={(e) => setTravelTheme(e.target.value)}
-                    className="editorial-input bg-[#0c0c0f] border-[#23232c] text-xs py-2.5"
-                  >
-                    <option value="Spiritual & Ghats">Spiritual, Ghats & Morning Aarti</option>
-                    <option value="Royal Forts & Palaces">Royal Forts, Havelis & Stepwells</option>
-                    <option value="Backwaters & Spice Hills">Backwaters, Tea Hills & Coast</option>
-                    <option value="Himalayan Passes & Monasteries">Himalayan Passes & Monasteries</option>
-                    <option value="Culinary & Street Food Bazaars">Culinary, Street Food & Bazaars</option>
-                  </select>
-
-                  <select
-                    value={transitMode}
-                    onChange={(e) => setTransitMode(e.target.value)}
-                    className="editorial-input bg-[#0c0c0f] border-[#23232c] text-xs py-2.5"
-                  >
-                    <option value="Vande Bharat / Express">Vande Bharat Express / Train</option>
-                    <option value="Private AC Chauffeur">Private AC Chauffeur / Cab</option>
-                    <option value="Self-Drive Royal Enfield">Self-Drive Royal Enfield / SUV</option>
-                    <option value="Local Auto & Ferries">Local Auto-Rickshaws & Ferries</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Bar */}
-            <div className="pt-6 border-t border-[#1c1c23] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-xs font-mono text-[#5c5851]">
-                <span className="w-2 h-2 rounded-full bg-[#4ade80]" />
-                <span>
-                  Estimated: {tripDays} Days · ₹{budgetTier.toLocaleString()} · {transitMode}
-                </span>
-              </div>
-
-              <TravelButton
-                variant="violet"
-                arrow
-                onClick={handleLaunchPlan}
-                className="py-3 px-6 text-xs tracking-[0.16em]"
-              >
-                GENERATE LIVE INDIAN ITINERARY
-              </TravelButton>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. LIVE DAY-BY-DAY ITINERARY PREVIEW DECK (INTERACTIVE ON HOME PAGE) ── */}
-      <section className="py-20 sm:py-28 px-6 sm:px-12 lg:px-16 border-b border-[#1c1c23]">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-4 border-b border-[#23232c] mb-10 gap-3">
-            <div>
-              <span className="eyebrow block text-[#7a5293]">
-                02 / LIVE ITINERARY PREVIEW
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#f5f2eb]">
-                Explore Curated Indian Days
-              </h2>
-            </div>
-
-            <TravelButton
-              variant="arrow"
-              onClick={() => handleOpenPreviewTrip(activeCityData)}
+            <button
+              type="submit"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-[#6D3FD9] hover:bg-[#7c3aed] active:scale-[0.98] text-white font-medium text-xs tracking-wider uppercase transition-all duration-150 shrink-0 shadow-sm cursor-pointer"
             >
-              VIEW FULL {activeCityData.name.toUpperCase()} ITINERARY
-            </TravelButton>
-          </div>
+              <span>Generate Trip</span>
+              <ArrowRight size={14} />
+            </button>
+          </form>
 
-          {/* Destination Tabs (Varanasi, Jaipur, Kerala, Ladakh) */}
-          <div className="flex items-center gap-4 overflow-x-auto pb-4 border-b border-[#1c1c23] mb-8 scrollbar-none">
-            {INDIAN_DESTINATIONS.map((dest) => {
-              const isSelected = previewCityId === dest.id;
-              return (
-                <button
-                  key={dest.id}
-                  type="button"
-                  onClick={() => {
-                    setPreviewCityId(dest.id);
-                    setActivePreviewDay(1);
-                  }}
-                  className={`px-4 py-2 border font-mono text-xs tracking-wider uppercase transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#432357] text-[#f5f2eb] border-[#7a5293]'
-                      : 'bg-[#141418] text-[#9e9a91] border-[#23232c] hover:border-[#32323e]'
-                  }`}
-                >
-                  <span>{dest.name}</span>
-                  <span className="text-[10px] text-[#5c5851] ml-2">({dest.days}D)</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Active Preview Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-            {/* Left Column: Visual Journal Stops (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col">
-              {/* Waypoint Track strip */}
-              <div className="p-3.5 bg-[#141418] border border-[#23232c] mb-6 flex items-center gap-2 overflow-x-auto text-[10px] font-mono text-[#9e9a91]">
-                <span className="text-[#7a5293] font-semibold uppercase mr-1">WAYPOINTS:</span>
-                {activeCityData.waypoints.map((wp, idx) => (
-                  <React.Fragment key={wp}>
-                    <span className="text-[#f5f2eb] whitespace-nowrap">{`0${idx + 1} ${wp}`}</span>
-                    {idx < activeCityData.waypoints.length - 1 && (
-                      <span className="text-[#32323e]">───</span>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* Day Header */}
-              <div className="flex items-baseline justify-between pb-3 border-b border-[#23232c] mb-6">
-                <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-xs font-semibold text-[#cebfdf] tracking-widest">
-                    DAY 01
-                  </span>
-                  <span className="text-[#5c5851] font-mono">/</span>
-                  <h3 className="font-serif text-2xl text-[#f5f2eb]">
-                    {activeCityData.name}, {activeCityData.state}
-                  </h3>
-                </div>
-                <span className="font-mono text-[11px] text-[#9e9a91] uppercase">
-                  EST. ₹{Math.round(activeCityData.budget / activeCityData.days).toLocaleString()} / DAY
-                </span>
-              </div>
-
-              {/* Stops List */}
-              <div className="flex flex-col gap-6">
-                {activeCityData.previewStops.map((stop, idx) => (
-                  <article key={stop.name} className="flex flex-col group">
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-baseline">
-                      <div className="sm:col-span-3 flex sm:flex-col items-baseline justify-between sm:justify-start gap-1 font-mono">
-                        <span className="text-xs text-[#cebfdf] font-semibold">{stop.time}</span>
-                        <span className="text-[10px] text-[#5c5851]">{stop.duration} · {stop.cost}</span>
-                      </div>
-
-                      <div className="sm:col-span-9 flex flex-col gap-1">
-                        <span className="font-sans text-[10px] tracking-wider uppercase text-[#7a5293] font-semibold">
-                          {stop.category}
-                        </span>
-                        <h4 className="font-serif text-xl text-[#f5f2eb] group-hover:text-[#cebfdf] transition-colors">
-                          {stop.name}
-                        </h4>
-                        <p className="font-sans text-[12px] text-[#9e9a91] leading-relaxed">
-                          {stop.desc}
-                        </p>
-
-                        {stop.photo && (
-                          <div className="mt-3 max-w-md">
-                            <EditorialImage
-                              src={stop.photo}
-                              caption={`Impression: ${stop.name}`}
-                              location={activeCityData.name}
-                              aspectRatio="aspect-[16/9]"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {idx < activeCityData.previewStops.length - 1 && (
-                      <div className="w-full h-[1px] bg-[#1c1c23] my-4" />
-                    )}
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Column: Destination Cover & Quick Dispatch Card (5 cols) */}
-            <div className="lg:col-span-5 flex flex-col gap-6">
-              <EditorialImage
-                src={activeCityData.heroImage}
-                caption={`${activeCityData.name}, ${activeCityData.state}`}
-                location={activeCityData.bestSeason}
-                figureNumber="PLATE NO. 01"
-                aspectRatio="aspect-[4/3] sm:aspect-[4/5]"
-              />
-
-              <div className="bg-[#131317] border border-[#23232c] p-6 flex flex-col gap-4">
-                <span className="font-mono text-[10px] tracking-[0.2em] text-[#7a5293] uppercase font-semibold">
-                  EXPEDITION DOSSIER
-                </span>
-                <p className="font-serif text-lg text-[#f5f2eb]">
-                  "{activeCityData.tagline}"
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#1c1c23] text-xs font-mono">
-                  <div>
-                    <span className="text-[10px] text-[#5c5851] uppercase block">OPTIMAL DURATION</span>
-                    <span className="text-[#f5f2eb]">{activeCityData.days} Days / {activeCityData.days - 1} Nights</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#5c5851] uppercase block">ESTIMATED BUDGET</span>
-                    <span className="text-[#cebfdf]">₹{activeCityData.budget.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <TravelButton
-                  variant="solid"
-                  arrow
-                  onClick={() => handleOpenPreviewTrip(activeCityData)}
-                  className="w-full mt-2 justify-center border-[#7a5293] hover:bg-[#1f1629]"
-                >
-                  PLAN {activeCityData.name.toUpperCase()} JOURNEY
-                </TravelButton>
-              </div>
-            </div>
+          {/* Quick Clickable Inspiration Chips */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+            <span className="text-xs font-mono text-[#5c5851] mr-1">TRY:</span>
+            {INSPIRATION_PROMPTS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => {
+                  setChatPrompt(`Plan ${p.label.replace(/^[^\s]+\s/, '')}`);
+                  handleLaunchTrip({
+                    destination: p.dest,
+                    days: p.days,
+                    budget: p.budget,
+                    highlights: [p.theme, 'Heritage', 'Local Transit'],
+                  });
+                }}
+                className="px-3 py-1.5 rounded-full bg-[#16161c] hover:bg-[#1f1f28] border border-[#23232c] hover:border-[#7a5293] text-xs font-sans text-[#cebfdf] transition-all cursor-pointer"
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── 4. WEATHER & MONSOON CONTINGENCY ENGINE (INDIAN CLIMATES) ──────── */}
+      {/* ── 2. LAYLA-STYLE INTERACTIVE CHAT & ITINERARY ASSISTANT WIDGET ────── */}
       <section className="py-20 px-6 sm:px-12 lg:px-16 border-b border-[#1c1c23] bg-[#0f0f14]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-4 border-b border-[#23232c] mb-10 gap-3">
-            <div>
-              <span className="eyebrow block text-[#7a5293]">
-                03 / METEOROLOGICAL ENGINE
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#f5f2eb]">
-                Intelligent Climate Adaptation
-              </h2>
-            </div>
-            <span className="font-mono text-[11px] text-[#9e9a91] tracking-wider uppercase">
-              MONSOON CONTINGENCIES · SUMMER NOON PEAKS
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Interactive Scenario Switcher (4 cols) */}
-            <div className="lg:col-span-4 bg-[#131317] border border-[#23232c] p-6 flex flex-col justify-between">
-              <div>
-                <span className="font-mono text-[10px] tracking-[0.2em] text-[#9e9a91] uppercase block mb-3">
-                  SIMULATE INDIAN WEATHER CONTINGENCY
-                </span>
-                <p className="font-sans text-[13px] text-[#9e9a91] leading-relaxed mb-6">
-                  Indian travel often collides with torrential monsoon showers or intense midday heat. TripPilot automatically isolates affected hours and swaps outdoor exposures for covered heritage spaces without ruining the day.
-                </p>
-
-                <div className="flex flex-col gap-2 font-mono text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setWeatherScenario('monsoon')}
-                    className={`p-3 text-left border transition-all cursor-pointer ${
-                      weatherScenario === 'monsoon'
-                        ? 'bg-[#432357] border-[#7a5293] text-[#f5f2eb]'
-                        : 'bg-[#18181f] border-[#23232c] text-[#9e9a91]'
-                    }`}
-                  >
-                    <span className="block font-semibold">14:00 Kerala Monsoon Downpour</span>
-                    <span className="text-[10px] text-[#5c5851]">Western Ghats heavy cloudburst</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setWeatherScenario('summer-heat')}
-                    className={`p-3 text-left border transition-all cursor-pointer ${
-                      weatherScenario === 'summer-heat'
-                        ? 'bg-[#432357] border-[#7a5293] text-[#f5f2eb]'
-                        : 'bg-[#18181f] border-[#23232c] text-[#9e9a91]'
-                    }`}
-                  >
-                    <span className="block font-semibold">12:30 Rajasthan Peak Summer Noon (41°C)</span>
-                    <span className="text-[10px] text-[#5c5851]">Aravalli open-air stone heatwave</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-[#1c1c23] text-[11px] font-mono text-[#cebfdf]">
-                ✓ Live adaptation active across all trip days
-              </div>
-            </div>
-
-            {/* Simulated Route Change Card (8 cols) */}
-            <div className="lg:col-span-8 bg-[#131317] border border-[#23232c] p-6 sm:p-8 flex flex-col justify-between">
-              {weatherScenario === 'monsoon' ? (
-                <div>
-                  <div className="flex items-center justify-between pb-3 border-b border-[#23232c] mb-6">
-                    <span className="font-mono text-xs font-semibold text-[#7a5293] uppercase">
-                      CASE: ALLEPPEY / FORT KOCHI RAIN SYSTEM
-                    </span>
-                    <span className="font-mono text-[11px] text-[#4ade80]">
-                      AUTO-ADAPTED
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="p-4 bg-[#18181f] border border-[#23232c]">
-                      <span className="font-mono text-[10px] text-[#5c5851] uppercase tracking-wider block mb-2">
-                        ORIGINAL OUTDOOR EXPOSURE
-                      </span>
-                      <h4 className="font-serif text-lg text-[#9e9a91] line-through">
-                        Open Canoe Canal Cruise & Village Trek
-                      </h4>
-                      <p className="text-xs text-[#5c5851] mt-2">
-                        Heavy rain forecast would drench travelers in open wooden canoes.
-                      </p>
-                    </div>
-
-                    <div className="p-4 bg-[#1e1329] border border-[#7a5293]">
-                      <span className="font-mono text-[10px] text-[#cebfdf] uppercase tracking-wider block mb-2">
-                        OPTIMIZED INDOOR REPLACEMENT
-                      </span>
-                      <h4 className="font-serif text-lg text-[#f5f2eb]">
-                        Mattancherry Dutch Palace & Jew Town Antique Corridors
-                      </h4>
-                      <p className="text-xs text-[#cebfdf] mt-2">
-                        Covered historical murals, museum galleries & sheltered spice warehouse cafes.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex items-center justify-between pb-3 border-b border-[#23232c] mb-6">
-                    <span className="font-mono text-xs font-semibold text-[#7a5293] uppercase">
-                      CASE: JAIPUR DESERT SUN PROTECTION
-                    </span>
-                    <span className="font-mono text-[11px] text-[#4ade80]">
-                      AUTO-ADAPTED
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="p-4 bg-[#18181f] border border-[#23232c]">
-                      <span className="font-mono text-[10px] text-[#5c5851] uppercase tracking-wider block mb-2">
-                        UNOPTIMIZED MIDDAY EXPOSURE
-                      </span>
-                      <h4 className="font-serif text-lg text-[#9e9a91] line-through">
-                        Nahargarh Fort Outdoor Ramparts at 13:00
-                      </h4>
-                      <p className="text-xs text-[#5c5851] mt-2">
-                        Exposed stone reflects intense 41°C sunlight with zero tree cover.
-                      </p>
-                    </div>
-
-                    <div className="p-4 bg-[#1e1329] border border-[#7a5293]">
-                      <span className="font-mono text-[10px] text-[#cebfdf] uppercase tracking-wider block mb-2">
-                        OPTIMIZED TIMELINE PACING
-                      </span>
-                      <h4 className="font-serif text-lg text-[#f5f2eb]">
-                        Sunrise Nahargarh 06:30 → Noon in City Palace Museum
-                      </h4>
-                      <p className="text-xs text-[#cebfdf] mt-2">
-                        Cool morning breeze on the fort ramparts; noon sheltered in shaded marble courtyards.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-8 pt-4 border-t border-[#1c1c23] flex items-center justify-between text-xs font-mono text-[#5c5851]">
-                <span>Pacing engine prevents fatigue across multi-day Indian circuits</span>
-                <span className="text-[#cebfdf]">TRIPPILOT EXCLUSIVE</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. CURATED INDIAN DESTINATION LIBRARY (DISPATCHES) ────────────── */}
-      <section className="py-24 px-6 sm:px-12 lg:px-16 border-b border-[#1c1c23]">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-4 border-b border-[#23232c] mb-12 gap-3">
             <div>
               <span className="eyebrow block text-[#7a5293]">
-                04 / INDIAN DESTINATION LIBRARY
+                AI CONVERSATIONAL ASSISTANT
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl text-[#f5f2eb]">
-                Selected Indian Dispatches
+                Refine Your Itinerary Like a Conversation
               </h2>
             </div>
-            <TravelButton variant="arrow" onClick={() => navigate('/explore')}>
-              VIEW ALL 28 INDIAN EXPEDITIONS
-            </TravelButton>
+            <span className="font-mono text-xs text-[#9e9a91]">
+              NATURAL LANGUAGE · REAL-TIME RE-PACING
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {INDIAN_DESTINATIONS.map((dest) => (
-              <div
-                key={dest.id}
-                className="bg-[#131317] border border-[#23232c] hover:border-[#7a5293] p-5 flex flex-col justify-between transition-colors group cursor-pointer"
-                onClick={() => handleOpenPreviewTrip(dest)}
-              >
-                <div>
-                  <EditorialImage
-                    src={dest.heroImage}
-                    caption={dest.name}
-                    location={dest.state}
-                    aspectRatio="aspect-[4/3]"
-                  />
-                  <div className="pt-4">
-                    <span className="eyebrow text-[#cebfdf]">{dest.state}</span>
-                    <h3 className="font-serif text-2xl text-[#f5f2eb] mt-1 group-hover:text-[#cebfdf] transition-colors">
-                      {dest.name}
-                    </h3>
-                    <p className="text-[12px] text-[#9e9a91] mt-2 line-clamp-2 leading-relaxed">
-                      {dest.tagline}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left: Interactive Simulated Chat Box (5 cols) */}
+            <div className="lg:col-span-5 bg-[#131317] border border-[#23232c] rounded-2xl p-6 flex flex-col justify-between shadow-editorial min-h-[460px]">
+              <div className="flex flex-col gap-4">
+                {/* Chat Header */}
+                <div className="flex items-center gap-3 pb-3 border-b border-[#1c1c23]">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-purple-900/60 border border-[#7a5293]">
+                    <img src="/favicon.svg" alt="TripPilot" className="w-full h-full object-cover scale-[1.3]" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold text-[#f5f2eb]">TripPilot AI Assistant</h4>
+                    <span className="text-[10px] text-[#4ade80] flex items-center gap-1 font-mono">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80]" /> Online · India Engine
+                    </span>
+                  </div>
+                </div>
+
+                {/* User Message */}
+                <div className="flex justify-end">
+                  <div className="bg-[#432357] text-[#f5f2eb] px-4 py-2.5 rounded-2xl rounded-tr-sm text-xs max-w-[85%] font-sans leading-relaxed">
+                    "I want 4 days in Jaipur on ₹24,000 budget. Keep mornings slow and add the best street food."
+                  </div>
+                </div>
+
+                {/* AI Response */}
+                <div className="flex justify-start">
+                  <div className="bg-[#181820] text-[#e7e3da] border border-[#272733] px-4 py-3 rounded-2xl rounded-tl-sm text-xs max-w-[90%] font-sans leading-relaxed flex flex-col gap-2">
+                    <span className="text-[11px] text-[#a78bfa] font-mono font-semibold">
+                      ✓ Jaipur 4-Day Itinerary Configured
+                    </span>
+                    <p>
+                      I’ve scheduled Amber Fort at 08:30 to beat tour buses, grouped Jantar Mantar with City Palace, and added an authentic kachori stop at Rawat Mishtan Bhandar.
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#1c1c23] mt-4 flex items-center justify-between font-mono text-xs">
-                  <div>
-                    <span className="text-[9px] text-[#5c5851] uppercase block">BUDGET</span>
-                    <span className="text-[#f5f2eb]">₹{dest.budget.toLocaleString()}</span>
+                {/* Prompt modification chips */}
+                <div className="mt-2 flex flex-col gap-1.5">
+                  <span className="text-[10px] font-mono text-[#5c5851] uppercase">TAP TO TEST RE-PACING:</span>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveDemoPrompt('food')}
+                      className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                        activeDemoPrompt === 'food'
+                          ? 'bg-[#6D3FD9] text-white border-[#8b5cf6]'
+                          : 'bg-[#181820] text-[#9e9a91] border-[#272733]'
+                      }`}
+                    >
+                      🍽️ Add Street Food Trail
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveDemoPrompt('heat')}
+                      className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                        activeDemoPrompt === 'heat'
+                          ? 'bg-[#6D3FD9] text-white border-[#8b5cf6]'
+                          : 'bg-[#181820] text-[#9e9a91] border-[#272733]'
+                      }`}
+                    >
+                      ☀️ Avoid Midday 40°C Heat
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveDemoPrompt('budget')}
+                      className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                        activeDemoPrompt === 'budget'
+                          ? 'bg-[#6D3FD9] text-white border-[#8b5cf6]'
+                          : 'bg-[#181820] text-[#9e9a91] border-[#272733]'
+                      }`}
+                    >
+                      💰 Under ₹18,000 Budget
+                    </button>
                   </div>
-                  <TravelButton variant="arrow">
-                    PLAN →
-                  </TravelButton>
+                </div>
+              </div>
+
+              {/* Chat Input Box */}
+              <div className="mt-4 pt-3 border-t border-[#1c1c23] flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Ask a question about this trip..."
+                  className="w-full bg-[#181820] border border-[#272733] text-xs text-[#f5f2eb] px-3 py-2 rounded-lg outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handlePromptSubmit();
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handlePromptSubmit}
+                  className="p-2 rounded-lg bg-[#6D3FD9] text-white hover:bg-[#7c3aed] transition-colors shrink-0"
+                >
+                  <Send size={13} />
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Dynamic Live Result Preview Card (7 cols) */}
+            <div className="lg:col-span-7 bg-[#131317] border border-[#23232c] rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-editorial">
+              <div>
+                <div className="flex items-center justify-between pb-4 border-b border-[#23232c] mb-6">
+                  <div>
+                    <span className="font-mono text-[10px] text-[#7a5293] uppercase tracking-wider font-semibold">
+                      LIVE ITINERARY PREVIEW
+                    </span>
+                    <h3 className="font-serif text-2xl text-[#f5f2eb] mt-0.5">
+                      Jaipur: Forts & Havelis Circuit
+                    </h3>
+                  </div>
+
+                  <span className="px-3 py-1 rounded-full bg-[#181820] border border-[#272733] text-xs font-mono text-[#cebfdf]">
+                    4 Days · ₹24,000 Total
+                  </span>
+                </div>
+
+                {/* Day Switcher */}
+                <div className="flex items-center gap-2 mb-6">
+                  {[1, 2, 3].map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setActivePreviewDay(d)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                        activePreviewDay === d
+                          ? 'bg-[#6D3FD9] text-white font-semibold'
+                          : 'bg-[#181820] text-[#9e9a91] hover:text-[#f5f2eb]'
+                      }`}
+                    >
+                      Day 0{d}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Stops List */}
+                <div className="flex flex-col gap-3 font-sans">
+                  {currentDayData.stops?.slice(0, 3).map((stop, idx) => (
+                    <div
+                      key={stop.name}
+                      className="p-3.5 rounded-xl bg-[#181820] border border-[#272733] flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-[#432357] text-[#cebfdf] flex items-center justify-center font-mono text-xs font-semibold shrink-0">
+                          {idx + 1}
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-[11px] text-[#a78bfa]">{stop.startTime}</span>
+                            <span className="text-[10px] font-mono text-[#5c5851]">· {stop.duration}m</span>
+                          </div>
+                          <h5 className="text-sm font-semibold text-[#f5f2eb]">{stop.name}</h5>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span className="text-xs font-mono text-[#4ade80]">
+                          {stop.cost === 0 ? 'Free' : `₹${stop.cost?.toLocaleString()}`}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <div className="mt-8 pt-4 border-t border-[#1c1c23] flex items-center justify-between">
+                <span className="text-xs font-mono text-[#5c5851]">
+                  Geographic clustering saves ~3.5 hours transit in Jaipur
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleLaunchTrip(previewTrip)}
+                  className="inline-flex items-center gap-2 py-2.5 px-6 rounded-xl bg-[#6D3FD9] hover:bg-[#7c3aed] text-white text-xs font-medium tracking-wider uppercase transition-all shadow-sm cursor-pointer"
+                >
+                  <span>Open Full Itinerary</span>
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. TRENDING CURATED ITINERARIES (LAYLA-STYLE VISUAL REEL) ──────── */}
+      <section className="py-24 px-6 sm:px-12 lg:px-16 border-b border-[#1c1c23]">
+        <div className="max-w-7xl mx-auto">
+          {/* Header & Category Filters */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-6 border-b border-[#23232c] mb-10 gap-6">
+            <div>
+              <span className="eyebrow block text-[#7a5293]">
+                CURATED EXPEDITIONS
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#f5f2eb]">
+                Trending Itineraries Across India
+              </h2>
+              <p className="font-sans text-xs sm:text-sm text-[#9e9a91] mt-1">
+                Handcrafted day-by-day itineraries pre-computed with geographic clustering and verified timings.
+              </p>
+            </div>
+
+            {/* Category Filter Chips */}
+            <div className="flex flex-wrap items-center gap-2">
+              {['All India', 'Rajasthan', 'Kerala', 'Himalayas', 'Spiritual'].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                    activeCategory === cat
+                      ? 'bg-[#6D3FD9] text-white font-medium border border-[#8b5cf6]'
+                      : 'bg-[#141418] text-[#9e9a91] border border-[#23232c] hover:border-[#32323e]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredTrips.map((trip) => (
+              <div
+                key={trip.id}
+                onClick={() => handleLaunchTrip(trip)}
+                className="bg-[#131317] border border-[#23232c] hover:border-[#7a5293] rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 shadow-editorial cursor-pointer hover:shadow-xl"
+              >
+                <div>
+                  {/* Image Container with Badges */}
+                  <div className="relative aspect-[16/10] overflow-hidden bg-[#181820]">
+                    <img
+                      src={trip.image}
+                      alt={trip.destination}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0f]/80 via-transparent to-transparent" />
+
+                    {/* Top Badges */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                      <span className="px-2.5 py-1 rounded-full bg-[#0c0c0f]/80 backdrop-blur-md border border-white/10 text-[10px] font-mono text-[#f5f2eb]">
+                        {trip.days} DAYS
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full bg-[#0c0c0f]/80 backdrop-blur-md border border-white/10 text-[10px] font-mono text-[#facc15] flex items-center gap-1">
+                        <Star size={10} className="fill-[#facc15]" /> {trip.rating}
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-3 left-3">
+                      <span className="text-[10px] font-mono text-[#a78bfa] tracking-wider uppercase font-semibold">
+                        {trip.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Body Content */}
+                  <div className="p-5 flex flex-col gap-2">
+                    <h3 className="font-serif text-2xl text-[#f5f2eb] group-hover:text-[#cebfdf] transition-colors">
+                      {trip.destination}
+                    </h3>
+                    <p className="font-sans text-xs text-[#9e9a91] leading-relaxed line-clamp-2">
+                      {trip.tagline}
+                    </p>
+
+                    {/* Highlights */}
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {trip.highlights.slice(0, 3).map((h) => (
+                        <span
+                          key={h}
+                          className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181820] text-[#9e9a91] border border-[#272733]"
+                        >
+                          {h}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Bar */}
+                <div className="p-5 pt-3 border-t border-[#1c1c23] flex items-center justify-between font-mono">
+                  <div>
+                    <span className="text-[9px] text-[#5c5851] uppercase block">BUDGET EST.</span>
+                    <span className="text-sm font-semibold text-[#f5f2eb]">
+                      ₹{trip.budget.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <span className="inline-flex items-center gap-1 text-xs text-[#cebfdf] group-hover:text-white transition-colors font-semibold">
+                    <span>Plan Trip</span>
+                    <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+                  </span>
                 </div>
               </div>
             ))}
@@ -884,29 +599,70 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* ── 6. FINAL EDITORIAL INVITATION WITH LOGO ──────────────────────── */}
-      <section className="py-24 px-6 sm:px-12 text-center bg-[#0a0a0d] border-b border-[#1c1c23]">
+      {/* ── 4. WHY TRIPPILOT / ENGINE HIGHLIGHTS ─────────────────────────────── */}
+      <section className="py-20 px-6 sm:px-12 lg:px-16 border-b border-[#1c1c23] bg-[#0f0f14]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="eyebrow block text-[#7a5293] mb-2">PRECISION LOGISTICS</span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#f5f2eb]">
+              Built Specifically for How Travel Works in India
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-[#131317] border border-[#23232c] p-6 rounded-2xl flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-900/40 text-[#a78bfa] flex items-center justify-center mb-1">
+                <Navigation size={18} />
+              </div>
+              <h4 className="font-serif text-xl text-[#f5f2eb]">Algorithmic Clustering</h4>
+              <p className="text-xs text-[#9e9a91] leading-relaxed">
+                We group nearby monuments geographically to eliminate chaotic rickshaw and cab back-and-forth across crowded Indian cities.
+              </p>
+            </div>
+
+            <div className="bg-[#131317] border border-[#23232c] p-6 rounded-2xl flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-900/40 text-[#a78bfa] flex items-center justify-center mb-1">
+                <Clock size={18} />
+              </div>
+              <h4 className="font-serif text-xl text-[#f5f2eb]">Heat & Monsoon Aware</h4>
+              <p className="text-xs text-[#9e9a91] leading-relaxed">
+                Automatically adjusts outdoor visits away from intense midday 40°C heat in Rajasthan and swaps monsoon rain for covered palaces in Kerala.
+              </p>
+            </div>
+
+            <div className="bg-[#131317] border border-[#23232c] p-6 rounded-2xl flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-900/40 text-[#a78bfa] flex items-center justify-center mb-1">
+                <IndianRupee size={18} />
+              </div>
+              <h4 className="font-serif text-xl text-[#f5f2eb]">Accurate ₹ INR Budgeting</h4>
+              <p className="text-xs text-[#9e9a91] leading-relaxed">
+                Calculates real monument passes (ASI tickets), regional thalis, auto-rickshaw fares, and boatmen rates without surprises.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. FINAL INVITATION CTA ────────────────────────────────────────── */}
+      <section className="py-24 px-6 sm:px-12 text-center bg-[#0c0c0f]">
         <div className="max-w-2xl mx-auto flex flex-col items-center">
           <Logo size="lg" className="mb-6" />
 
-          <span className="eyebrow text-[#7a5293] mb-3">
-            COMMENCE YOUR INDIAN EXPEDITION
-          </span>
-          <h2 className="font-serif-headline text-4xl sm:text-5xl text-[#f5f2eb] mb-6">
-            Where across India will your next chapter unfold?
+          <h2 className="font-serif-headline text-3xl sm:text-5xl text-[#f5f2eb] mb-4">
+            Ready to plan your trip across India?
           </h2>
-          <p className="font-serif-subheadline text-xl text-[#9e9a91] mb-10 max-w-lg">
-            From the high passes of Ladakh to the sacred river ghats of Varanasi and Kerala backwaters.
+          <p className="text-sm text-[#9e9a91] mb-8 max-w-md leading-relaxed">
+            Create an optimized, stress-free day-by-day itinerary tailored to your exact budget and travel style.
           </p>
 
-          <TravelButton
-            variant="violet"
-            arrow
+          <button
+            type="button"
             onClick={() => navigate('/plan')}
-            className="py-3 px-8 text-xs tracking-[0.18em]"
+            className="inline-flex items-center gap-3 py-3.5 px-8 rounded-xl bg-[#6D3FD9] hover:bg-[#7c3aed] text-white font-medium text-xs tracking-wider uppercase transition-all shadow-editorial cursor-pointer"
           >
-            START PLANNING YOUR INDIAN TRIP
-          </TravelButton>
+            <span>Start Planning Your Trip</span>
+            <ArrowRight size={14} />
+          </button>
         </div>
       </section>
     </div>

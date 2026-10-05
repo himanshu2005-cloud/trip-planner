@@ -15,6 +15,9 @@ export const Footer = () => {
 
         {/* Centered navigation links */}
         <div className="flex flex-wrap items-center gap-8 font-mono text-[11px] tracking-wider uppercase text-[#9e9a91]">
+          <Link to="/" className="hover:text-[#f5f2eb] transition-colors">
+            HOME
+          </Link>
           <Link to="/explore" className="hover:text-[#f5f2eb] transition-colors">
             EXPLORE INDIA
           </Link>

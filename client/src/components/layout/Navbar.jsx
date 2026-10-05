@@ -8,6 +8,7 @@ export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
 
   const navLinks = [
+    { label: 'HOME', path: '/' },
     { label: 'EXPLORE INDIA', path: '/explore' },
     { label: 'PLAN ITINERARY', path: '/plan' },
     { label: 'MY SAVED TRIPS', path: '/trips' },
