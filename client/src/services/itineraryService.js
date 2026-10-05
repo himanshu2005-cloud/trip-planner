@@ -61,6 +61,14 @@ export const itineraryService = {
   },
 
   /**
+   * Update an existing trip by ID
+   */
+  async updateTrip(id, tripData) {
+    const res = await api.put(`/trips/${id}`, tripData);
+    return res.data;
+  },
+
+  /**
    * Delete a saved trip
    */
   async deleteTrip(id) {

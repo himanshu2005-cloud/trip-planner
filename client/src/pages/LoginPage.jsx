@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
@@ -12,23 +12,26 @@ export const LoginPage = () => {
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from || '/trips';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       await login(email, password);
-      navigate('/plan');
+      navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || 'Login failed. Please verify your credentials.');
     }
   };
 
   return (
     <div className="py-12 flex items-center justify-center animate-fade-in">
-      <Card className="w-full max-w-md p-8 border-purple-500/20">
+      <Card className="w-full max-w-md p-8 border-purple-500/20 shadow-glass">
         <div className="text-center mb-6">
-          <div className="w-10 h-10 mx-auto rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center mb-3">
+          <div className="w-10 h-10 mx-auto rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center mb-3 shadow-glow-sm">
             <Sparkles size={20} />
           </div>
           <h2 className="text-2xl font-bold text-text-primary tracking-tight">
@@ -73,7 +76,7 @@ export const LoginPage = () => {
             size="lg"
             variant="primary"
             disabled={isLoading}
-            className="mt-2 w-full"
+            className="mt-2 w-full shadow-glow"
           >
             <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
             <ArrowRight size={16} />
@@ -82,7 +85,11 @@ export const LoginPage = () => {
 
         <p className="text-center text-xs text-text-muted mt-6">
           Don't have an account?{' '}
-          <Link to="/register" className="text-purple-400 hover:text-purple-300 font-medium">
+          <Link
+            to="/register"
+            state={{ from }}
+            className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
+          >
             Create account
           </Link>
         </p>

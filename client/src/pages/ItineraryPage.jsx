@@ -54,6 +54,10 @@ export const ItineraryPage = () => {
     generatedData?.interests || initialCriteria.interests
   );
 
+  const [tripId, setTripId] = useState(
+    location.state?.tripId || location.state?.trip?._id || null
+  );
+
   // Real Days state
   const [days, setDays] = useState(() => {
     if (generatedData?.itinerary && generatedData.itinerary.length > 0) {
@@ -67,12 +71,16 @@ export const ItineraryPage = () => {
   const [selectedReason, setSelectedReason] = useState('Too expensive');
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(Boolean(location.state?.tripId || location.state?.trip?._id));
   const [toastMessage, setToastMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   // Synchronize state if navigation state changes
   useEffect(() => {
+    if (location.state?.tripId) {
+      setTripId(location.state.tripId);
+      setIsSaved(true);
+    }
     if (location.state?.generatedData) {
       const data = location.state.generatedData;
       setDestination(data.destination);
@@ -119,45 +127,55 @@ export const ItineraryPage = () => {
     setTimeout(() => setToastMessage(''), 3500);
   };
 
-  // Save Trip action
+  // Save or Update Trip action
   const handleSaveTrip = async () => {
     if (!isAuthenticated) {
-      // Prompt user to sign in or save locally
       showToast('Please sign in to save this trip to your profile.');
-      setTimeout(() => navigate('/login'), 1500);
+      setTimeout(() => navigate('/login', { state: { from: location } }), 1200);
       return;
     }
 
     setIsSaving(true);
     setErrorMessage('');
-    try {
-      await itineraryService.saveTrip({
-        destination,
-        days: numberOfDays,
-        budget,
-        interests,
-        itinerary: days.map((d) => ({
-          day: d.dayNumber,
-          date: d.date || '',
-          totalCost: d.totalCost || 0,
-          totalTravelTime: d.totalTravelTimeMin || d.totalTravelTime || 0,
-          stops: (d.stops || []).map((s) => ({
-            attraction: s.name || s.attraction,
-            startTime: s.startTime || '09:00',
-            duration: s.durationMin || s.duration || 60,
-            cost: s.cost || 0,
-            coordinates: s.coordinates,
-            category: Array.isArray(s.category) ? s.category[0] : s.category,
-            rating: s.rating,
-            openingHours: s.openingHours,
-            travelToNext: s.travelToNext,
-            weather: s.weather || 'clear',
-          })),
-        })),
-      });
 
-      setIsSaved(true);
-      showToast('Trip saved to My Trips!');
+    const payload = {
+      destination,
+      days: numberOfDays,
+      budget,
+      interests,
+      itinerary: days.map((d) => ({
+        day: d.dayNumber,
+        date: d.date || '',
+        totalCost: d.totalCost || 0,
+        totalTravelTime: d.totalTravelTimeMin || d.totalTravelTime || 0,
+        stops: (d.stops || []).map((s) => ({
+          attraction: s.name || s.attraction,
+          startTime: s.startTime || '09:00',
+          duration: s.durationMin || s.duration || 60,
+          cost: s.cost || 0,
+          coordinates: s.coordinates,
+          category: Array.isArray(s.category) ? s.category[0] : s.category,
+          rating: s.rating,
+          openingHours: s.openingHours,
+          travelToNext: s.travelToNext,
+          weather: s.weather || 'clear',
+        })),
+      })),
+    };
+
+    try {
+      if (tripId) {
+        await itineraryService.updateTrip(tripId, payload);
+        setIsSaved(true);
+        showToast('Saved trip updated successfully!');
+      } else {
+        const res = await itineraryService.saveTrip(payload);
+        if (res?.data?._id) {
+          setTripId(res.data._id);
+        }
+        setIsSaved(true);
+        showToast('Trip saved to My Trips!');
+      }
     } catch (err) {
       setErrorMessage(
         err.response?.data?.message || 'Failed to save trip. Please try again.'
