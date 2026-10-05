@@ -11,7 +11,7 @@ export default defineConfig({
     // the API key stays server-side and CORS is not an issue in dev.
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',
         changeOrigin: true,
       },
     },

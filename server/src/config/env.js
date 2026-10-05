@@ -37,7 +37,7 @@ if (missing.length > 0) {
 
 module.exports = {
   NODE_ENV: process.env.NODE_ENV || 'development',
-  PORT: parseInt(process.env.PORT || '5000', 10),
+  PORT: parseInt(process.env.PORT || '5001', 10),
 
   // Database
   MONGODB_URI: process.env.MONGODB_URI,
