@@ -1,37 +1,76 @@
 import React, { useState } from 'react';
-import { MapPin, Calendar, IndianRupee, ArrowRight, Sparkles } from 'lucide-react';
-import Card from '../ui/Card';
-import Input from '../ui/Input';
-import Button from '../ui/Button';
-import InterestSelector from './InterestSelector';
 
-const POPULAR_DESTINATIONS = [
-  'Paris, France',
-  'Tokyo, Japan',
-  'Jaipur, India',
-  'Rome, Italy',
-  'Barcelona, Spain',
+const POPULAR_INDIAN_DESTINATIONS = [
+  { name: 'Varanasi, Uttar Pradesh', label: 'Varanasi', icon: '🛕' },
+  { name: 'Jaipur, Rajasthan', label: 'Jaipur', icon: '🏰' },
+  { name: 'Alleppey & Munnar, Kerala', label: 'Kerala Backwaters', icon: '🌴' },
+  { name: 'Udaipur, Rajasthan', label: 'Udaipur', icon: '🌊' },
+  { name: 'Leh & Nubra Valley, Ladakh', label: 'Ladakh', icon: '🏔️' },
+  { name: 'Old Goa & South Beaches', label: 'Goa', icon: '⛵' },
+  { name: 'Hampi, Karnataka', label: 'Hampi', icon: '🏛️' },
+  { name: 'Rishikesh, Uttarakhand', label: 'Rishikesh', icon: '🧘' },
+];
+
+const DURATION_PRESETS = [
+  { days: 3, title: '3 Days', subtitle: 'Weekend Escape' },
+  { days: 5, title: '5 Days', subtitle: 'Classic Circuit' },
+  { days: 7, title: '7 Days', subtitle: 'Deep Heritage' },
+  { days: 10, title: '10 Days', subtitle: 'Grand Expedition' },
+];
+
+const BUDGET_PRESETS = [
+  { amount: 15000, label: '₹15,000', tier: 'Budget Explorer', note: 'Hostels, autos, street thalis' },
+  { amount: 35000, label: '₹35,000', tier: 'Heritage Haveli', note: 'AC cabs, boutique stays, tickets' },
+  { amount: 75000, label: '₹75,000', tier: 'Royal Palace Dossier', note: 'Palace resorts, private chauffeur' },
+];
+
+const INDIAN_INTERESTS = [
+  'Heritage & Fortresses',
+  'Spiritual & River Ghats',
+  'Misty Tea & Backwaters',
+  'High Himalayan Passes',
+  'Regional Cuisine & Street Food',
+  'Ancient Stepwells & Temple Art',
+  'Artisan Silk & Handlooms',
+  'Wildlife & Bird Sanctuaries',
 ];
 
 export const TripForm = ({ onSubmit, initialValues = {}, isLoading = false }) => {
-  const [destination, setDestination] = useState(initialValues.destination || 'Paris, France');
-  const [numberOfDays, setNumberOfDays] = useState(initialValues.numberOfDays || 5);
-  const [budget, setBudget] = useState(initialValues.budget || 40000);
-  const [interests, setInterests] = useState(
-    initialValues.interests || ['History', 'Food', 'Culture', 'Architecture']
+  const [destination, setDestination] = useState(
+    initialValues.destination || 'Jaipur, Rajasthan'
   );
+  const [numberOfDays, setNumberOfDays] = useState(
+    initialValues.numberOfDays || 4
+  );
+  const [budget, setBudget] = useState(initialValues.budget || 28000);
+  const [selectedInterests, setSelectedInterests] = useState(
+    initialValues.interests || [
+      'Heritage & Fortresses',
+      'Regional Cuisine & Street Food',
+      'Ancient Stepwells & Temple Art',
+    ]
+  );
+  const [transitMode, setTransitMode] = useState('Vande Bharat / Express');
   const [errors, setErrors] = useState({});
+
+  const toggleInterest = (interest) => {
+    setSelectedInterests((prev) =>
+      prev.includes(interest)
+        ? prev.filter((i) => i !== interest)
+        : [...prev, interest]
+    );
+  };
 
   const validate = () => {
     const errs = {};
     if (!destination.trim()) {
-      errs.destination = 'Please enter a destination';
+      errs.destination = 'Please provide an Indian destination';
     }
     if (!numberOfDays || numberOfDays < 1 || numberOfDays > 14) {
-      errs.numberOfDays = 'Trip duration must be between 1 and 14 days';
+      errs.numberOfDays = 'Duration must be between 1 and 14 days';
     }
     if (!budget || budget <= 0) {
-      errs.budget = 'Please enter a valid budget amount';
+      errs.budget = 'Specify a target trip budget';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -45,138 +84,285 @@ export const TripForm = ({ onSubmit, initialValues = {}, isLoading = false }) =>
         destination: destination.trim(),
         numberOfDays: Number(numberOfDays),
         budget: Number(budget),
-        interests,
+        interests: selectedInterests.length > 0 ? selectedInterests : ['General Indian Heritage'],
+        transitMode,
       });
     }
   };
 
+  const perDayCost = Math.round(budget / (numberOfDays || 1));
+
   return (
-    <Card className="p-6 sm:p-8 max-w-xl mx-auto border-purple-500/20 shadow-glass">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-            <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider">
-              Smart Planning Engine
-            </span>
-          </div>
-          <h2 className="text-2xl font-bold text-text-primary tracking-tight">
-            Plan Your Journey
-          </h2>
-          <p className="text-xs text-text-muted mt-1">
-            Specify your parameters and let our optimization engine craft a balanced day-wise route.
-          </p>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+      {/* ── 01 / Destination Section ───────────────────────────────────────── */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-baseline justify-between">
+          <label
+            htmlFor="destination"
+            className="font-mono text-[11px] tracking-[0.22em] text-[#cebfdf] uppercase font-semibold flex items-center gap-2"
+          >
+            <span>01 / TARGET REGION OR CITY (INDIA)</span>
+          </label>
+          <span className="text-[11px] text-[#5c5851] font-mono">
+            India only · Verified geographic coordinates
+          </span>
         </div>
 
-        {/* Destination */}
-        <div className="flex flex-col gap-1.5">
-          <Input
+        <div className="relative">
+          <input
             id="destination"
-            label="Destination"
-            placeholder="Where are you going?"
-            icon={MapPin}
+            type="text"
+            placeholder="e.g. Varanasi, Uttar Pradesh or Munnar, Kerala"
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            error={errors.destination}
+            className="editorial-input text-lg sm:text-xl bg-[#0c0c0f] border-[#23232c] focus:border-[#7a5293] py-4 px-5 text-[#f5f2eb]"
             required
           />
-          {/* Quick Destination Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            <span className="text-[10px] text-text-muted uppercase tracking-wider mr-1">
-              Popular:
-            </span>
-            {POPULAR_DESTINATIONS.map((city) => (
+        </div>
+        {errors.destination && (
+          <span className="text-xs font-mono text-red-400">
+            {errors.destination}
+          </span>
+        )}
+
+        {/* Quick Destination Chips */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          {POPULAR_INDIAN_DESTINATIONS.map((city) => {
+            const isSelected = destination.toLowerCase().includes(city.label.toLowerCase());
+            return (
               <button
-                key={city}
+                key={city.name}
                 type="button"
-                onClick={() => setDestination(city)}
-                className={`text-[11px] px-2.5 py-0.5 rounded-lg border transition-all ${
-                  destination === city
-                    ? 'bg-purple-600/30 text-purple-300 border-purple-500/40'
-                    : 'bg-white/[0.03] text-text-muted hover:text-text-primary border-white/[0.06]'
+                onClick={() => setDestination(city.name)}
+                className={`font-mono text-xs px-3.5 py-2 border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-[#432357] text-[#f5f2eb] border-[#7a5293]'
+                    : 'bg-[#141418] text-[#9e9a91] border-[#23232c] hover:border-[#32323e] hover:text-[#f5f2eb]'
                 }`}
               >
-                {city.split(',')[0]}
+                <span>{city.label}</span>
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Duration & Budget Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Input
-              id="numberOfDays"
-              label="Trip Duration (Days)"
+      {/* ── 02 & 03 / Duration & Budget Grid ──────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2 border-t border-[#1c1c23]">
+        {/* Left: Duration Selector (6 cols) */}
+        <div className="lg:col-span-6 flex flex-col gap-3">
+          <div className="flex items-baseline justify-between">
+            <label className="font-mono text-[11px] tracking-[0.22em] text-[#cebfdf] uppercase font-semibold">
+              02 / DURATION ({numberOfDays} DAYS)
+            </label>
+            <span className="text-[11px] text-[#5c5851] font-mono">
+              1 — 14 days
+            </span>
+          </div>
+
+          {/* Presets */}
+          <div className="grid grid-cols-2 gap-2.5 font-mono text-xs">
+            {DURATION_PRESETS.map((p) => {
+              const isSelected = numberOfDays === p.days;
+              return (
+                <button
+                  key={p.days}
+                  type="button"
+                  onClick={() => setNumberOfDays(p.days)}
+                  className={`p-3 text-left border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#432357] border-[#7a5293] text-[#f5f2eb]'
+                      : 'bg-[#141418] border-[#23232c] text-[#9e9a91] hover:border-[#32323e]'
+                  }`}
+                >
+                  <span className="block font-semibold text-sm">{p.title}</span>
+                  <span className="text-[10px] text-[#5c5851]">{p.subtitle}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Stepper / Direct numeric input */}
+          <div className="flex items-center gap-3 mt-1 bg-[#141418] border border-[#23232c] p-2">
+            <span className="text-xs font-mono text-[#5c5851] uppercase ml-2">CUSTOM DAYS:</span>
+            <input
               type="number"
               min="1"
               max="14"
-              icon={Calendar}
               value={numberOfDays}
-              onChange={(e) => setNumberOfDays(e.target.value)}
-              error={errors.numberOfDays}
-              required
+              onChange={(e) => setNumberOfDays(Number(e.target.value))}
+              className="bg-transparent text-sm font-mono text-[#f5f2eb] outline-none w-16 text-center border-b border-[#7a5293]"
             />
-            {/* Quick Days presets */}
-            <div className="flex items-center gap-1.5 mt-1">
-              {[3, 5, 7, 10].map((days) => (
-                <button
-                  key={days}
-                  type="button"
-                  onClick={() => setNumberOfDays(days)}
-                  className={`text-[11px] flex-1 py-1 rounded-lg border text-center transition-all ${
-                    Number(numberOfDays) === days
-                      ? 'bg-purple-600/30 text-purple-300 border-purple-500/40 font-semibold'
-                      : 'bg-white/[0.03] text-text-muted hover:text-text-primary border-white/[0.06]'
-                  }`}
-                >
-                  {days}d
-                </button>
-              ))}
-            </div>
+            <span className="text-xs font-mono text-[#9e9a91]">days scheduled</span>
+          </div>
+          {errors.numberOfDays && (
+            <span className="text-xs font-mono text-red-400">
+              {errors.numberOfDays}
+            </span>
+          )}
+        </div>
+
+        {/* Right: Budget Selector (6 cols) */}
+        <div className="lg:col-span-6 flex flex-col gap-3">
+          <div className="flex items-baseline justify-between">
+            <label className="font-mono text-[11px] tracking-[0.22em] text-[#cebfdf] uppercase font-semibold">
+              03 / ESTIMATED EXPEDITION BUDGET
+            </label>
+            <span className="text-xs font-mono text-[#cebfdf] font-semibold">
+              ₹{budget.toLocaleString()} (₹{perDayCost.toLocaleString()} / day)
+            </span>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Input
-              id="budget"
-              label="Total Budget (₹)"
+          {/* Budget Presets */}
+          <div className="grid grid-cols-1 gap-2 font-mono text-xs">
+            {BUDGET_PRESETS.map((b) => {
+              const isSelected = budget === b.amount;
+              return (
+                <button
+                  key={b.amount}
+                  type="button"
+                  onClick={() => setBudget(b.amount)}
+                  className={`p-2.5 text-left border flex items-center justify-between transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#432357] border-[#7a5293] text-[#f5f2eb]'
+                      : 'bg-[#141418] border-[#23232c] text-[#9e9a91] hover:border-[#32323e]'
+                  }`}
+                >
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-semibold text-sm">{b.label}</span>
+                    <span className="text-[11px] text-[#cebfdf]">— {b.tier}</span>
+                  </div>
+                  <span className="text-[10px] text-[#5c5851] hidden sm:inline">{b.note}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Custom Budget Stepper */}
+          <div className="flex items-center gap-3 mt-1 bg-[#141418] border border-[#23232c] p-2">
+            <span className="text-xs font-mono text-[#5c5851] uppercase ml-2">CUSTOM BUDGET: ₹</span>
+            <input
               type="number"
-              min="1000"
+              min="2000"
               step="1000"
-              icon={IndianRupee}
               value={budget}
-              onChange={(e) => setBudget(e.target.value)}
-              error={errors.budget}
-              required
+              onChange={(e) => setBudget(Number(e.target.value))}
+              className="bg-transparent text-sm font-mono text-[#f5f2eb] outline-none flex-1 border-b border-[#7a5293]"
             />
-            <div className="flex items-center justify-between text-[11px] text-text-muted px-1 mt-1">
-              <span>Approx. per day:</span>
-              <span className="text-purple-300 font-medium">
-                ₹{numberOfDays > 0 ? Math.round(budget / numberOfDays).toLocaleString() : 0}/day
-              </span>
-            </div>
+            <span className="text-xs font-mono text-[#9e9a91]">INR</span>
+          </div>
+          {errors.budget && (
+            <span className="text-xs font-mono text-red-400">{errors.budget}</span>
+          )}
+        </div>
+      </div>
+
+      {/* ── 04 / Travel Themes & Cadence in India ─────────────────────────── */}
+      <div className="flex flex-col gap-3 pt-2 border-t border-[#1c1c23]">
+        <div className="flex items-baseline justify-between">
+          <label className="font-mono text-[11px] tracking-[0.22em] text-[#cebfdf] uppercase font-semibold">
+            04 / TRAVEL CADENCE & EXPERIENCES IN INDIA
+          </label>
+          <span className="text-[11px] text-[#5c5851] font-mono">
+            {selectedInterests.length} selected
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
+          {INDIAN_INTERESTS.map((interest) => {
+            const isSelected = selectedInterests.includes(interest);
+            return (
+              <button
+                key={interest}
+                type="button"
+                onClick={() => toggleInterest(interest)}
+                className={`p-3 text-left border transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#432357] text-[#f5f2eb] border-[#7a5293]'
+                    : 'bg-[#141418] text-[#9e9a91] border-[#23232c] hover:border-[#32323e] hover:text-[#f5f2eb]'
+                }`}
+              >
+                <span className="text-[11px] font-medium leading-snug block">
+                  {isSelected ? `✓ ${interest}` : `+ ${interest}`}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── 05 / Transit Mode Selection ──────────────────────────────────── */}
+      <div className="flex flex-col gap-3 pt-2 border-t border-[#1c1c23]">
+        <label className="font-mono text-[11px] tracking-[0.22em] text-[#cebfdf] uppercase font-semibold">
+          05 / PREFERRED TRANSIT MODE IN INDIA
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+          {[
+            { id: 'Vande Bharat / Express', title: 'Vande Bharat / IRCTC Express', desc: 'Comfortable rail travel between Indian heritage hubs' },
+            { id: 'Private AC Chauffeur', title: 'Private AC Chauffeur', desc: 'Door-to-door flexibility with luggage assistance' },
+            { id: 'Self-Drive SUV / Enfield', title: 'Self-Drive SUV / Enfield', desc: 'Independent exploration across highway passes' },
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              onClick={() => setTransitMode(mode.id)}
+              className={`p-3 text-left border transition-all cursor-pointer ${
+                transitMode === mode.id
+                  ? 'bg-[#432357] border-[#7a5293] text-[#f5f2eb]'
+                  : 'bg-[#141418] border-[#23232c] text-[#9e9a91] hover:border-[#32323e]'
+              }`}
+            >
+              <span className="font-semibold block">{mode.title}</span>
+              <span className="text-[10px] text-[#5c5851] block mt-1">{mode.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── 06 / BIGGER AND BETTER PLACED CTA ─────────────────────────────── */}
+      <div className="mt-4 pt-6 border-t border-[#23232c] bg-[#111116] border border-[#23232c] p-6 sm:p-8 flex flex-col gap-6 shadow-editorial">
+        {/* Real-time calculation summary strip */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#23232c] gap-3 text-xs font-mono">
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#4ade80] shrink-0" />
+            <span className="text-[#f5f2eb] font-semibold text-sm">
+              {destination}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 text-[#9e9a91]">
+            <span>{numberOfDays} Days</span>
+            <span>·</span>
+            <span>₹{budget.toLocaleString()} Total</span>
+            <span>·</span>
+            <span className="text-[#cebfdf]">₹{perDayCost.toLocaleString()} / day</span>
           </div>
         </div>
 
-        {/* Interests Selector */}
-        <InterestSelector
-          selectedInterests={interests}
-          onChange={setInterests}
-        />
+        {/* Large Prominent CTA Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col">
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#7a5293]">
+              READY TO COMPOSE
+            </span>
+            <span className="font-serif italic text-sm text-[#9e9a91]">
+              Applies geographic clustering, opening windows & local pacing.
+            </span>
+          </div>
 
-        {/* Primary CTA Button (DESIGN.md §9: linear-gradient(135deg, #7C3AED, #A855F7)) */}
-        <Button
-          type="submit"
-          size="lg"
-          variant="primary"
-          disabled={isLoading}
-          className="mt-2 w-full shadow-glow"
-        >
-          <span>Generate My Itinerary</span>
-          <ArrowRight size={18} />
-        </Button>
-      </form>
-    </Card>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 py-4 px-10 bg-[#432357] hover:bg-[#572e70] active:scale-[0.99] border-2 border-[#7a5293] hover:border-[#cebfdf] text-[#f5f2eb] font-mono text-sm font-semibold tracking-[0.16em] uppercase transition-all duration-200 cursor-pointer shadow-editorial disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span>
+              {isLoading ? 'COMPOSING INDIAN ITINERARY...' : 'GENERATE OPTIMIZED INDIAN ITINERARY'}
+            </span>
+            <span className="text-lg font-serif">→</span>
+          </button>
+        </div>
+      </div>
+    </form>
   );
 };
 

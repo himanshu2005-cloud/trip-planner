@@ -5,9 +5,9 @@ import Footer from './Footer';
 
 export const Layout = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-text-primary selection:bg-purple-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#0c0c0f] text-[#f5f2eb]">
       <Navbar />
-      <main className="flex-1 pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 w-full flex flex-col pt-[57px]">
         <Outlet />
       </main>
       <Footer />

@@ -1,24 +1,34 @@
 import React from 'react';
 
+/**
+ * DayTabs
+ * Understated editorial day switcher with subtle violet active indicator
+ * and monospaced typography.
+ */
 export const DayTabs = ({ days = [], activeDay = 1, onSelectDay }) => {
   return (
-    <div className="flex flex-col gap-2">
-      {/* Horizontal Tabs Row (DESIGN.md §12) */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+    <div className="w-full border-b border-[#23232c] my-6">
+      <div className="flex items-center gap-8 overflow-x-auto scrollbar-none pb-2">
         {days.map((day) => {
           const isSelected = activeDay === day.dayNumber;
+          const formatted =
+            day.dayNumber < 10 ? `DAY 0${day.dayNumber}` : `DAY ${day.dayNumber}`;
+
           return (
             <button
               key={day.dayNumber}
               type="button"
               onClick={() => onSelectDay(day.dayNumber)}
-              className={`px-5 py-2.5 rounded-xl font-medium text-xs tracking-wider uppercase whitespace-nowrap transition-all duration-200 cursor-pointer select-none border ${
+              className={`font-mono text-[11px] tracking-[0.22em] uppercase transition-all duration-200 pb-2 relative cursor-pointer whitespace-nowrap ${
                 isSelected
-                  ? 'bg-gradient-to-r from-purple-700 via-purple-600 to-purple-500 text-white border-purple-400/60 shadow-glow scale-[1.02]'
-                  : 'bg-white/[0.04] hover:bg-white/[0.08] text-text-secondary hover:text-text-primary border-white/[0.08]'
+                  ? 'text-[#f5f2eb] font-semibold'
+                  : 'text-[#5c5851] hover:text-[#9e9a91]'
               }`}
             >
-              Day {day.dayNumber}
+              <span>{formatted}</span>
+              {isSelected && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#7a5293]" />
+              )}
             </button>
           );
         })}

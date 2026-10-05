@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TripForm from '../components/planner/TripForm';
 import PlanningLoader from '../components/planner/PlanningLoader';
 import itineraryService from '../services/itineraryService';
+import Logo from '../components/ui/Logo';
 
 export const PlanTripPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,17 +16,15 @@ export const PlanTripPage = () => {
     setStepIndex(0);
     setErrorMessage('');
 
-    // Smoothly progress through animated planning stages while API executes
     const stepTimer = setInterval(() => {
       setStepIndex((prev) => (prev < 4 ? prev + 1 : prev));
     }, 450);
 
     try {
-      // Real API Call: fetch attractions & run optimization engine
       const result = await itineraryService.generateItinerary(criteria);
 
       clearInterval(stepTimer);
-      setStepIndex(4); // All 5 steps completed
+      setStepIndex(4);
 
       setTimeout(() => {
         navigate('/itinerary', {
@@ -46,31 +45,44 @@ export const PlanTripPage = () => {
   };
 
   return (
-    <div className="py-6 animate-fade-in max-w-4xl mx-auto">
-      {isLoading ? (
-        <div className="py-16">
-          <PlanningLoader currentStepIndex={stepIndex} />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          <div className="text-center max-w-lg mx-auto">
-            <h1 className="text-3xl font-bold text-text-primary tracking-tight">
-              Build Your Itinerary
-            </h1>
-            <p className="text-xs sm:text-sm text-text-secondary mt-1">
-              Specify your constraints and let the optimization engine craft your route
-            </p>
+    <div className="w-full min-h-[90vh] bg-[#0c0c0f] text-[#f5f2eb] py-12 px-6 sm:px-12">
+      <div className="max-w-5xl mx-auto">
+        {isLoading ? (
+          <div className="py-20">
+            <PlanningLoader currentStepIndex={stepIndex} />
           </div>
+        ) : (
+          <div className="flex flex-col gap-10">
+            {/* Top Dossier Header */}
+            <div className="pb-6 border-b border-[#23232c]">
+              <div className="flex items-center gap-3 mb-3">
+                <Logo size="sm" showWordmark={false} />
+                <span className="font-mono text-[10px] tracking-[0.25em] text-[#7a5293] uppercase font-semibold">
+                  TRIPPILOT · INDIAN EXPEDITION DOSSIER
+                </span>
+              </div>
 
-          {errorMessage && (
-            <div className="max-w-xl mx-auto w-full p-4 rounded-xl bg-danger/10 border border-danger/30 text-xs text-danger text-center">
-              {errorMessage}
+              <h1 className="font-serif-headline text-4xl sm:text-5xl lg:text-6xl text-[#f5f2eb] mb-3">
+                Trip Planning Parameters
+              </h1>
+              <p className="font-serif-subheadline text-lg sm:text-xl text-[#9e9a91] max-w-2xl leading-relaxed">
+                Configure your destination, duration, budget, and cadence across India. Our geographic clustering and 2-opt routing engine organizes your journey with zero dead transit time.
+              </p>
             </div>
-          )}
 
-          <TripForm onSubmit={handleTripSubmit} isLoading={isLoading} />
-        </div>
-      )}
+            {errorMessage && (
+              <div className="p-4 bg-red-950/20 border border-red-800/40 text-xs font-mono text-red-300">
+                {errorMessage}
+              </div>
+            )}
+
+            {/* Trip Form Container */}
+            <div className="bg-[#131317] border border-[#23232c] p-6 sm:p-10 shadow-editorial">
+              <TripForm onSubmit={handleTripSubmit} isLoading={isLoading} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

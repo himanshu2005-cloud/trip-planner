@@ -1,29 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import {
-  Sparkles,
-  Share2,
-  Bookmark,
-  Calendar,
-  IndianRupee,
-  MapPin,
-  Clock,
-  ArrowLeft,
-  Navigation,
-  Layers,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-} from 'lucide-react';
-import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
-import Modal from '../components/ui/Modal';
+import { useAuth } from '../context/AuthContext';
 import DayTabs from '../components/itinerary/DayTabs';
 import DayTimeline from '../components/itinerary/DayTimeline';
 import BudgetSummary from '../components/itinerary/BudgetSummary';
 import WeatherAlert from '../components/itinerary/WeatherAlert';
-import ItineraryMap from '../components/map/ItineraryMap';
+import RouteMap from '../components/editorial/RouteMap';
+import TravelButton from '../components/editorial/TravelButton';
+import Modal from '../components/ui/Modal';
 import itineraryService from '../services/itineraryService';
 import { REALISTIC_PARIS_ITINERARY } from '../utils/mockItinerary';
 
@@ -37,7 +21,7 @@ export const ItineraryPage = () => {
     destination: generatedData?.destination || 'Paris, France',
     numberOfDays: generatedData?.numberOfDays || 5,
     budget: generatedData?.budget || 40000,
-    interests: generatedData?.interests || ['History', 'Food', 'Culture'],
+    interests: generatedData?.interests || ['Art', 'Architecture', 'Culture'],
   };
 
   // State
@@ -67,6 +51,7 @@ export const ItineraryPage = () => {
   });
 
   const [activeDay, setActiveDay] = useState(1);
+  const [selectedStopIndex, setSelectedStopIndex] = useState(0);
   const [isRegenerateModalOpen, setIsRegenerateModalOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState('Too expensive');
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -90,11 +75,12 @@ export const ItineraryPage = () => {
       if (data.itinerary && data.itinerary.length > 0) {
         setDays(data.itinerary);
         setActiveDay(1);
+        setSelectedStopIndex(0);
       }
     }
   }, [location.state]);
 
-  // Aggregated dynamic metrics calculated from real days
+  // Aggregated dynamic metrics
   const totalSelectedStops = days.reduce(
     (acc, d) => acc + (d.stops?.length || 0),
     0
@@ -108,14 +94,11 @@ export const ItineraryPage = () => {
       .reduce((acc, d) => acc + (d.totalDistanceKm || 0), 0)
       .toFixed(1)
   );
-  const attractionsAnalyzed =
-    generatedData?.attractionsAnalyzed || Math.max(30, numberOfDays * 8);
 
   // Current active day data
   const currentDayData =
-    days.find((d) => d.dayNumber === activeDay) || days[0];
+    days.find((d) => d.dayNumber === activeDay) || days[0] || { stops: [] };
 
-  // Dynamic expense breakdown
   const expenseBreakdown = {
     attractions: Math.round(totalEstimatedCost * 0.62),
     food: Math.round(totalEstimatedCost * 0.26),
@@ -130,7 +113,7 @@ export const ItineraryPage = () => {
   // Save or Update Trip action
   const handleSaveTrip = async () => {
     if (!isAuthenticated) {
-      showToast('Please sign in to save this trip to your profile.');
+      showToast('Please sign in to archive this journey to your journal.');
       setTimeout(() => navigate('/login', { state: { from: location } }), 1200);
       return;
     }
@@ -167,18 +150,18 @@ export const ItineraryPage = () => {
       if (tripId) {
         await itineraryService.updateTrip(tripId, payload);
         setIsSaved(true);
-        showToast('Saved trip updated successfully!');
+        showToast('Journal volume updated.');
       } else {
         const res = await itineraryService.saveTrip(payload);
         if (res?.data?._id) {
           setTripId(res.data._id);
         }
         setIsSaved(true);
-        showToast('Trip saved to My Trips!');
+        showToast('Archived in My Journal.');
       }
     } catch (err) {
       setErrorMessage(
-        err.response?.data?.message || 'Failed to save trip. Please try again.'
+        err.response?.data?.message || 'Failed to archive journey.'
       );
     } finally {
       setIsSaving(false);
@@ -207,20 +190,16 @@ export const ItineraryPage = () => {
       });
 
       if (response?.updatedDay) {
-        // Replace target day in days array
         setDays((prevDays) =>
           prevDays.map((d) =>
             d.dayNumber === activeDay ? response.updatedDay : d
           )
         );
-        showToast(
-          `Day ${activeDay} successfully re-planned with priority: "${selectedReason}"`
-        );
+        showToast(`Day 0${activeDay} re-composed around "${selectedReason}"`);
       }
     } catch (err) {
       setErrorMessage(
-        err.response?.data?.message ||
-          'Failed to regenerate day. Please try again.'
+        err.response?.data?.message || 'Failed to re-compose day.'
       );
     } finally {
       setIsRegenerating(false);
@@ -228,139 +207,102 @@ export const ItineraryPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 py-3 animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 py-10">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-purple-700 text-white text-xs font-semibold shadow-glow border border-purple-400/40 flex items-center gap-2 animate-fade-in">
-          <CheckCircle2 size={16} className="text-success" />
+        <div className="fixed bottom-8 right-8 z-50 px-5 py-3 bg-[#18181f] text-[#f5f2eb] font-mono text-xs border border-[#7a5293] shadow-editorial flex items-center gap-3">
+          <span className="w-2 h-2 rounded-full bg-[#7a5293]" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Error Banner */}
       {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-danger/10 border border-danger/30 text-xs text-danger flex items-center gap-2">
-          <AlertCircle size={16} />
-          <span>{errorMessage}</span>
+        <div className="mb-6 p-4 bg-red-950/20 border border-red-800/40 text-xs font-mono text-red-300">
+          {errorMessage}
         </div>
       )}
 
-      {/* ── Top Navigation & Actions Bar ───────────────────────────────────── */}
-      <div className="flex items-center justify-between">
+      {/* Top Dispatch Bar */}
+      <div className="flex items-center justify-between pb-6 border-b border-[#23232c] mb-8">
         <Link
           to="/plan"
-          className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary transition-colors"
+          className="inline-flex items-center gap-2 font-mono text-[11px] tracking-wider text-[#9e9a91] hover:text-[#f5f2eb] uppercase transition-colors"
         >
-          <ArrowLeft size={14} />
-          <span>Edit Trip Parameters</span>
+          <span>←</span>
+          <span>EDIT PARAMETERS</span>
         </Link>
 
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant={isSaved ? 'secondary' : 'primary'}
+        <div className="flex items-center gap-4">
+          <TravelButton
+            variant={isSaved ? 'solid' : 'violet'}
+            arrow={false}
             onClick={handleSaveTrip}
             disabled={isSaving}
           >
-            {isSaving ? (
-              <Loader2 size={14} className="animate-spin text-purple-400" />
-            ) : (
-              <Bookmark
-                size={14}
-                className={isSaved ? 'fill-purple-400 text-purple-400' : ''}
-              />
-            )}
-            <span>{isSaved ? 'Saved in My Trips' : isSaving ? 'Saving...' : 'Save Itinerary'}</span>
-          </Button>
+            {isSaving ? 'ARCHIVING...' : isSaved ? '✓ ARCHIVED IN JOURNAL' : 'SAVE TO JOURNAL +'}
+          </TravelButton>
         </div>
       </div>
 
-      {/* ── Header Summary Card (DESIGN.md §11) ────────────────────────────── */}
-      <Card className="p-6 border-purple-500/20 shadow-glass">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <Badge variant="purple">Algorithmic Itinerary</Badge>
-              <span className="text-xs text-text-muted">
-                K-means Clustering + 2-Opt TSP
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
-              {destination}
-            </h1>
-            <p className="text-xs sm:text-sm text-text-secondary mt-1">
-              {numberOfDays} Days · ₹{budget?.toLocaleString()} Budget ·{' '}
-              {interests?.join(', ')}
-            </p>
-          </div>
-
-          {/* Real Metrics Grid (DESIGN.md §11) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted block">
-                Analyzed
-              </span>
-              <p className="text-base font-bold text-text-primary mt-0.5">
-                {attractionsAnalyzed} Places
-              </p>
-            </div>
-
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted block">
-                Selected
-              </span>
-              <p className="text-base font-bold text-purple-400 mt-0.5">
-                {totalSelectedStops} Curated
-              </p>
-            </div>
-
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted block">
-                Est. Travel
-              </span>
-              <p className="text-base font-bold text-accent-blue mt-0.5">
-                {totalEstimatedTravelKm} km
-              </p>
-            </div>
-
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted block">
-                Est. Cost
-              </span>
-              <p className="text-base font-bold text-success mt-0.5">
-                ₹{totalEstimatedCost.toLocaleString()}
-              </p>
-            </div>
-          </div>
+      {/* Editorial Journal Headline Section */}
+      <section className="mb-10">
+        <div className="flex items-baseline gap-3 mb-2">
+          <span className="font-mono text-[10px] tracking-[0.25em] text-[#7a5293] uppercase font-semibold">
+            EXPEDITION DOSSIER
+          </span>
+          <span className="text-[#32323e] text-xs">/</span>
+          <span className="font-mono text-[10px] tracking-[0.18em] text-[#9e9a91] uppercase">
+            {numberOfDays} DAYS · ₹{budget?.toLocaleString()} BUDGET
+          </span>
         </div>
-      </Card>
 
-      {/* ── Day Navigation Tabs (DESIGN.md §12) ─────────────────────────────── */}
+        <h1 className="font-serif-headline text-5xl sm:text-6xl lg:text-7xl text-[#f5f2eb] mb-4">
+          {destination}
+        </h1>
+
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-mono text-[#5c5851] uppercase tracking-wider pt-2 border-t border-[#1c1c23]">
+          <span>{totalSelectedStops} CURATED WAYPOINTS</span>
+          <span>·</span>
+          <span>EST. {totalEstimatedTravelKm} KM TRANSIT</span>
+          <span>·</span>
+          <span>TAGS: {interests?.join(', ')}</span>
+        </div>
+      </section>
+
+      {/* Day Navigation Tabs */}
       <DayTabs
         days={days}
         activeDay={activeDay}
-        onSelectDay={setActiveDay}
+        onSelectDay={(dayNum) => {
+          setActiveDay(dayNum);
+          setSelectedStopIndex(0);
+        }}
       />
 
-      {/* ── Two-Column Layout: Itinerary & Map (DESIGN.md §14) ──────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Timeline, Budget & Weather (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
-          {/* Weather Alert (DESIGN.md §17) */}
+      {/* Two-Column Asymmetrical Grid: Journal Timeline (7 cols) + Cartographic Route (5 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        {/* Left Column: Visual Journal Entries */}
+        <div className="lg:col-span-7 flex flex-col">
+          {/* Meteorological Notice */}
           <WeatherAlert
-            rainForecast="Rain expected at 3 PM"
-            originalRoute="Eiffel Tower → Luxembourg Gardens"
-            updatedRoute="Eiffel Tower → Louvre Museum"
+            rainForecast="Afternoon cloud cover with scattered showers expected near 15:00"
+            originalRoute="Outdoor gardens & rooftop terraces"
+            updatedRoute="Covered passages, museum galleries & tea salons"
           />
 
-          {/* Timeline Cards (DESIGN.md §13 & §18) */}
+          {/* Sequential Journal Stops */}
           <DayTimeline
             day={currentDayData}
+            destination={destination}
+            activeDay={activeDay}
+            selectedStopIndex={selectedStopIndex}
+            onSelectStop={setSelectedStopIndex}
             onRegenerateDay={() => setIsRegenerateModalOpen(true)}
             isRegenerating={isRegenerating}
           />
 
-          {/* Budget UI Card (DESIGN.md §16) */}
+          {/* Expedition Ledger */}
           <BudgetSummary
             totalBudget={budget}
             estimatedCost={totalEstimatedCost}
@@ -368,75 +310,68 @@ export const ItineraryPage = () => {
           />
         </div>
 
-        {/* Right Column: Interactive Numbered Route Map (5 cols) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24">
-          <ItineraryMap
-            stops={currentDayData.stops}
+        {/* Right Column: Dark Cinematic Route Map (Sticky on desktop) */}
+        <div className="lg:col-span-5 lg:sticky lg:top-20">
+          <RouteMap
+            stops={currentDayData.stops || []}
             destination={destination}
             activeDay={activeDay}
+            selectedStopIndex={selectedStopIndex}
+            onSelectStop={setSelectedStopIndex}
           />
         </div>
       </div>
 
-      {/* ── Regenerate Day Modal (DESIGN.md §15) ────────────────────────────── */}
+      {/* Minimal Re-compose Modal */}
       <Modal
         isOpen={isRegenerateModalOpen}
         onClose={() => setIsRegenerateModalOpen(false)}
-        title={`Regenerate Day ${activeDay}`}
+        title={`Re-compose Day 0${activeDay}`}
       >
-        <div className="flex flex-col gap-4">
-          <p className="text-xs text-text-secondary">
-            Why do you want to adjust Day {activeDay}? Other days will remain intact.
+        <div className="flex flex-col gap-5 pt-2">
+          <p className="font-serif italic text-sm text-[#9e9a91]">
+            Select an intentional focus to adjust the pacing and selection of Day 0{activeDay}.
           </p>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 font-mono text-xs">
             {[
-              'Too expensive',
-              'Too much travel',
-              'More food',
-              'More nature',
-              'More indoor activities',
-              'Weather changed',
+              'Slower pace & more cafe culture',
+              'Architecture & historic landmarks',
+              'Local culinary highlights & markets',
+              'Parks, gardens & quiet natural spaces',
+              'Art galleries & covered passages',
+              'Budget-conscious walking route',
             ].map((reason) => (
               <label
                 key={reason}
-                className="flex items-center gap-2.5 text-xs text-text-primary p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] cursor-pointer border border-white/[0.06] transition-colors"
+                className="flex items-center gap-3 p-3 bg-[#141418] hover:bg-[#1a1a20] border border-[#23232c] cursor-pointer transition-colors"
               >
                 <input
                   type="radio"
                   name="regenerateReason"
                   checked={selectedReason === reason}
                   onChange={() => setSelectedReason(reason)}
-                  className="text-purple-600 focus:ring-purple-400"
+                  className="accent-[#7a5293]"
                 />
-                <span>{reason}</span>
+                <span className="text-[#f5f2eb]">{reason}</span>
               </label>
             ))}
           </div>
 
-          <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between text-xs">
-            <span className="text-text-muted">Target day budget:</span>
-            <span className="text-purple-300 font-semibold">
-              ₹{Math.round(budget / numberOfDays).toLocaleString()}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/[0.08] mt-1">
-            <Button
-              size="sm"
-              variant="secondary"
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1c1c23]">
+            <TravelButton
+              variant="ghost"
               onClick={() => setIsRegenerateModalOpen(false)}
             >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              variant="primary"
+              CANCEL
+            </TravelButton>
+            <TravelButton
+              variant="solid"
               onClick={handleRegenerate}
               disabled={isRegenerating}
             >
-              {isRegenerating ? 'Optimizing...' : 'Regenerate'}
-            </Button>
+              {isRegenerating ? 'RE-COMPOSING...' : 'APPLY TO JOURNAL'}
+            </TravelButton>
           </div>
         </div>
       </Modal>

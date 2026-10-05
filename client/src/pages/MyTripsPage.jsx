@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Compass, Calendar, IndianRupee, Trash2, ArrowUpRight, Loader2, Sparkles } from 'lucide-react';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
+import TravelButton from '../components/editorial/TravelButton';
+import Logo from '../components/ui/Logo';
 import itineraryService from '../services/itineraryService';
 import { useAuth } from '../context/AuthContext';
 
@@ -50,6 +48,7 @@ export const MyTripsPage = () => {
   const handleOpenTrip = (trip) => {
     navigate('/itinerary', {
       state: {
+        tripId: trip._id || trip.id,
         criteria: {
           destination: trip.destination,
           numberOfDays: trip.days || trip.numberOfDays,
@@ -68,32 +67,37 @@ export const MyTripsPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 py-6 animate-fade-in max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 py-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-8 border-b border-[#23232c] mb-12 gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary tracking-tight">
-            My Saved Trips
+          <div className="flex items-center gap-3 mb-2">
+            <Logo size="sm" showWordmark={false} />
+            <span className="font-mono text-[10px] tracking-[0.25em] text-[#7a5293] uppercase font-semibold">
+              MY TRAVEL JOURNAL
+            </span>
+          </div>
+          <h1 className="font-serif-headline text-4xl sm:text-5xl lg:text-6xl text-[#f5f2eb]">
+            Archived Expeditions
           </h1>
-          <p className="text-xs text-text-secondary mt-1">
-            Access, view, and re-optimize your planned journeys
+          <p className="font-serif-subheadline text-base sm:text-lg text-[#9e9a91] mt-1">
+            Access, view, and re-optimize your planned journeys across India.
           </p>
         </div>
 
         <Link to="/plan">
-          <Button size="sm" variant="primary">
-            <Compass size={16} />
-            <span>Plan New Trip</span>
-          </Button>
+          <TravelButton variant="violet" arrow>
+            + PLAN NEW INDIAN EXPEDITION
+          </TravelButton>
         </Link>
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-text-muted flex flex-col items-center gap-3">
-          <Loader2 size={24} className="animate-spin text-purple-400" />
-          <span className="text-xs">Loading saved trips...</span>
+        <div className="py-24 text-center text-[#5c5851] font-mono text-xs">
+          ACCESSING ARCHIVED JOURNALS...
         </div>
       ) : trips.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {trips.map((trip) => {
             const tripId = trip._id || trip.id;
             const stopCount = (trip.itinerary || []).reduce(
@@ -102,86 +106,83 @@ export const MyTripsPage = () => {
             );
 
             return (
-              <Card
+              <article
                 key={tripId}
-                hoverable
-                className="p-5 flex flex-col justify-between"
+                className="bg-[#131317] border border-[#23232c] hover:border-[#7a5293] p-6 flex flex-col justify-between group transition-colors cursor-pointer shadow-editorial"
                 onClick={() => handleOpenTrip(trip)}
               >
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="purple">{trip.days || trip.numberOfDays} Days</Badge>
-                    <span className="text-[11px] text-text-muted">
+                  <div className="flex items-baseline justify-between mb-3 text-xs font-mono">
+                    <span className="text-[#cebfdf] tracking-wider uppercase">
+                      {trip.days || trip.numberOfDays} DAYS
+                    </span>
+                    <span className="text-[#5c5851]">
                       {trip.createdAt
                         ? new Date(trip.createdAt).toLocaleDateString()
                         : 'Recent'}
                     </span>
                   </div>
-                  <h3 className="text-lg font-bold text-text-primary tracking-tight mb-1">
+
+                  <h3 className="font-serif text-2xl text-[#f5f2eb] group-hover:text-[#cebfdf] transition-colors">
                     {trip.destination}
                   </h3>
-                  <p className="text-xs text-text-muted mb-4">
-                    {stopCount > 0 ? `${stopCount} curated stops · ` : ''}
-                    {trip.interests?.slice(0, 3).join(', ') || 'Custom'}
+
+                  <p className="font-sans text-xs text-[#9e9a91] mt-2">
+                    {stopCount > 0 ? `${stopCount} curated waypoints · ` : ''}
+                    {trip.interests?.slice(0, 3).join(', ') || 'Custom Circuit'}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
+                <div className="pt-5 border-t border-[#1c1c23] mt-6 flex items-center justify-between font-mono text-xs">
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-text-muted block">
-                      Budget
+                    <span className="text-[9px] text-[#5c5851] uppercase tracking-wider block">
+                      BUDGET
                     </span>
-                    <span className="text-sm font-semibold text-text-primary">
+                    <span className="text-[#f5f2eb] font-semibold">
                       ₹{trip.budget?.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <button
-                      title="Delete trip"
+                      type="button"
+                      title="Delete journal entry"
                       disabled={deletingId === tripId}
                       onClick={(e) => handleDeleteTrip(tripId, e)}
-                      className="p-2 text-text-muted hover:text-danger rounded-lg hover:bg-white/[0.05] transition-colors"
+                      className="text-[#5c5851] hover:text-red-400 font-mono text-xs transition-colors p-1"
                     >
-                      {deletingId === tripId ? (
-                        <Loader2 size={15} className="animate-spin" />
-                      ) : (
-                        <Trash2 size={15} />
-                      )}
+                      {deletingId === tripId ? '...' : 'DELETE'}
                     </button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => handleOpenTrip(trip)}
-                    >
-                      <span>Open</span>
-                      <ArrowUpRight size={14} />
-                    </Button>
+
+                    <TravelButton variant="solid" arrow>
+                      OPEN
+                    </TravelButton>
                   </div>
                 </div>
-              </Card>
+              </article>
             );
           })}
         </div>
       ) : (
-        <Card className="p-12 text-center border-white/[0.08] max-w-md mx-auto my-8">
-          <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-purple-600/20 text-purple-400 flex items-center justify-center">
-            <Sparkles size={22} />
-          </div>
-          <h3 className="text-lg font-bold text-text-primary mb-1">
-            No saved trips yet
-          </h3>
-          <p className="text-xs text-text-muted mb-6">
-            {!isAuthenticated
-              ? 'Sign in to access your saved trips across devices.'
-              : 'Generate an itinerary and click "Save Itinerary" to keep it here.'}
+        /* Editorial Empty State */
+        <div className="py-24 text-center max-w-lg mx-auto flex flex-col items-center">
+          <Logo size="lg" className="mb-6 opacity-75" />
+
+          <p className="font-serif-subheadline text-2xl text-[#f5f2eb] mb-3">
+            "Your next journey hasn't been written yet."
           </p>
+          <p className="text-xs text-[#9e9a91] font-mono mb-8 max-w-sm">
+            {!isAuthenticated
+              ? 'Sign in to access your saved journeys, or start planning a new circuit.'
+              : 'Choose a destination across India to craft an optimized day-by-day expedition.'}
+          </p>
+
           <Link to={!isAuthenticated ? '/login' : '/plan'}>
-            <Button size="sm" variant="primary">
-              <span>{!isAuthenticated ? 'Sign In' : 'Plan a Trip'}</span>
-            </Button>
+            <TravelButton variant="violet" arrow>
+              {!isAuthenticated ? 'SIGN IN TO JOURNAL' : 'PLAN A TRIP'}
+            </TravelButton>
           </Link>
-        </Card>
+        </div>
       )}
     </div>
   );

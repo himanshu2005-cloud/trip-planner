@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
-import Card from '../components/ui/Card';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
+import Logo from '../components/ui/Logo';
+import TravelButton from '../components/editorial/TravelButton';
 import { useAuth } from '../context/AuthContext';
 
 export const LoginPage = () => {
@@ -39,89 +37,91 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="py-12 flex items-center justify-center animate-fade-in">
-      <Card className="w-full max-w-md p-8 border-purple-500/20 shadow-glass">
-        <div className="text-center mb-6">
-          <div className="w-10 h-10 mx-auto rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center mb-3">
-            <Sparkles size={20} />
-          </div>
-          <h2 className="text-2xl font-bold text-text-primary tracking-tight">
-            Welcome back
+    <div className="w-full py-16 px-6 flex items-center justify-center">
+      <div className="w-full max-w-md bg-[#131317] border border-[#23232c] p-8 sm:p-10 shadow-editorial flex flex-col">
+        {/* Brand Logo Header */}
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Logo size="lg" className="mb-4" />
+          <h2 className="font-serif-headline text-3xl text-[#f5f2eb]">
+            Access Your Journal
           </h2>
-          <p className="text-xs text-text-muted mt-1">
-            Sign in to access your saved itineraries and personalized routes
+          <p className="font-serif italic text-xs text-[#9e9a91] mt-1">
+            Sign in to retrieve your archived Indian expeditions and custom waypoints.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-danger/10 border border-danger/30 text-xs text-danger text-center">
+          <div className="mb-6 p-3 bg-red-950/20 border border-red-800/40 text-xs font-mono text-red-300 text-center">
             {error}
           </div>
         )}
 
-        <div className="flex justify-center mb-6">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google Sign In was unsuccessful.')}
-            useOneTap
-            theme="outline"
-            size="large"
-            width="100%"
-          />
-        </div>
-
-        <div className="relative mb-6 flex items-center">
-          <div className="flex-grow border-t border-glass-border"></div>
-          <span className="flex-shrink-0 mx-4 text-text-muted text-xs uppercase">or continue with email</span>
-          <div className="flex-grow border-t border-glass-border"></div>
-        </div>
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            id="email"
-            label="Email Address"
-            type="email"
-            placeholder="you@domain.com"
-            icon={Mail}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <div className="flex flex-col gap-1.5">
+            <label className="font-mono text-[10px] tracking-[0.2em] text-[#9e9a91] uppercase">
+              EMAIL ADDRESS
+            </label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="editorial-input"
+              required
+            />
+          </div>
 
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            placeholder="••••••••"
-            icon={Lock}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="flex flex-col gap-1.5">
+            <label className="font-mono text-[10px] tracking-[0.2em] text-[#9e9a91] uppercase">
+              PASSWORD
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="editorial-input"
+              required
+            />
+          </div>
 
-          <Button
-            type="submit"
-            size="lg"
-            variant="primary"
-            disabled={isLoading}
-            className="mt-2 w-full"
-          >
-            <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
-            <ArrowRight size={16} />
-          </Button>
+          <div className="pt-3">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 px-6 bg-[#432357] hover:bg-[#522a6a] border border-[#7a5293] text-[#f5f2eb] font-mono text-xs font-semibold tracking-[0.16em] uppercase transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {isLoading ? 'AUTHENTICATING...' : 'SIGN IN →'}
+            </button>
+          </div>
         </form>
 
-        <p className="text-center text-xs text-text-muted mt-6">
-          Don't have an account?{' '}
-          <Link
-            to="/register"
-            state={{ from }}
-            className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
-          >
-            Create account
+        {/* Divider */}
+        <div className="my-6 flex items-center gap-3">
+          <div className="flex-1 h-[1px] bg-[#1c1c23]" />
+          <span className="font-mono text-[10px] text-[#5c5851] uppercase">OR</span>
+          <div className="flex-1 h-[1px] bg-[#1c1c23]" />
+        </div>
+
+        {/* Google Login */}
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google sign-in was unsuccessful.')}
+            theme="filled_black"
+            shape="rectangular"
+            size="large"
+            text="signin_with"
+          />
+        </div>
+
+        <div className="mt-8 pt-4 border-t border-[#1c1c23] text-center font-mono text-xs text-[#9e9a91]">
+          <span>Need a new dossier? </span>
+          <Link to="/register" className="text-[#cebfdf] hover:underline font-semibold ml-1">
+            Create an account
           </Link>
-        </p>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

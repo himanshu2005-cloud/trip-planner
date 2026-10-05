@@ -1,93 +1,68 @@
 import React from 'react';
-import { Wallet, IndianRupee, PieChart, Tag, Utensils, Bus, Ticket } from 'lucide-react';
-import Card from '../ui/Card';
 
+/**
+ * BudgetSummary
+ * Minimal editorial travel expense ledger.
+ */
 export const BudgetSummary = ({
   totalBudget = 40000,
-  estimatedCost = 36850,
+  estimatedCost = 38500,
   breakdown = {
-    attractions: 22400,
-    food: 9850,
-    transport: 4600,
+    attractions: 24000,
+    food: 10000,
+    transport: 4500,
   },
 }) => {
-  const remaining = Math.max(0, totalBudget - estimatedCost);
-  const percentage = Math.min(100, Math.round((estimatedCost / totalBudget) * 100));
-
   const categories = [
-    { label: 'Attractions', amount: breakdown.attractions, color: 'bg-purple-500', icon: Ticket },
-    { label: 'Food & Dining', amount: breakdown.food, color: 'bg-accent-pink', icon: Utensils },
-    { label: 'Transport', amount: breakdown.transport, color: 'bg-accent-blue', icon: Bus },
+    { label: 'Attractions & Sightseeing', amount: breakdown.attractions || 0, percent: 62 },
+    { label: 'Cuisine & Dining', amount: breakdown.food || 0, percent: 26 },
+    { label: 'Local Transit', amount: breakdown.transport || 0, percent: 12 },
   ];
 
   return (
-    <Card className="p-6 border-purple-500/20 shadow-glass">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
-            <Wallet size={18} />
-          </div>
-          <div>
-            <h4 className="text-base font-semibold text-text-primary tracking-tight">
-              Trip Budget
-            </h4>
-            <p className="text-xs text-text-muted">Adherence & Daily Breakdown</p>
-          </div>
+    <div className="w-full bg-[#131317] border border-[#23232c] p-6 mt-10">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-4 border-b border-[#23232c] gap-2">
+        <div>
+          <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#7a5293]">
+            EXPEDITION LEDGER
+          </span>
+          <h3 className="font-serif text-xl text-[#f5f2eb] mt-0.5">
+            Estimated Budget Allocation
+          </h3>
         </div>
 
-        <div className="text-right">
-          <div className="flex items-baseline justify-end gap-1">
-            <span className="text-xl font-bold text-text-primary tracking-tight">
-              ₹{estimatedCost.toLocaleString()}
+        <div className="text-left sm:text-right">
+          <span className="font-mono text-[10px] tracking-wider text-[#5c5851] uppercase block">
+            EST. TOTAL / TARGET
+          </span>
+          <span className="font-mono text-base font-semibold text-[#f5f2eb]">
+            ₹{estimatedCost.toLocaleString()}{' '}
+            <span className="text-xs font-normal text-[#5c5851]">
+              / ₹{totalBudget?.toLocaleString()}
             </span>
-            <span className="text-xs text-text-muted">
-              / ₹{totalBudget.toLocaleString()}
-            </span>
-          </div>
-          <span className="text-[11px] font-semibold text-success bg-success/10 px-2 py-0.5 rounded-md border border-success/30 inline-block mt-0.5">
-            ₹{remaining.toLocaleString()} remaining
           </span>
         </div>
       </div>
 
-      {/* Main Budget Bar (DESIGN.md §16) */}
-      <div className="mb-4">
-        <div className="w-full bg-white/[0.06] rounded-full h-3 overflow-hidden p-0.5 border border-white/[0.06] flex">
-          <div
-            className="bg-gradient-to-r from-purple-600 via-accent-pink to-accent-blue h-full rounded-full transition-all duration-500 shadow-glow-sm"
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between text-xs text-text-muted mt-2">
-          <span>{percentage}% of total budget allocated</span>
-          <span className="text-purple-300 font-medium">Within constraints</span>
-        </div>
-      </div>
-
-      {/* Category Breakdown (DESIGN.md §16: Attractions, Food, Transport) */}
-      <div className="pt-2">
-        <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block mb-2.5">
-          Expense Breakdown
-        </span>
-        <div className="grid grid-cols-3 gap-2">
-          {categories.map(({ label, amount, color, icon: Icon }) => (
-            <div
-              key={label}
-              className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] flex flex-col justify-between"
-            >
-              <div className="flex items-center gap-1.5 text-text-secondary text-[11px] mb-1">
-                <span className={`w-2 h-2 rounded-full ${color}`} />
-                <span className="truncate">{label}</span>
-              </div>
-              <span className="text-sm font-bold text-text-primary">
-                ₹{amount.toLocaleString()}
-              </span>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-5">
+        {categories.map((cat) => (
+          <div key={cat.label} className="flex flex-col gap-1">
+            <span className="font-mono text-[10px] tracking-wider text-[#9e9a91] uppercase">
+              {cat.label}
+            </span>
+            <span className="font-mono text-sm text-[#f5f2eb]">
+              ₹{cat.amount.toLocaleString()}
+            </span>
+            <div className="w-full h-[2px] bg-[#1c1c23] mt-1 overflow-hidden">
+              <div
+                className="h-full bg-[#7a5293]"
+                style={{ width: `${Math.min(cat.percent, 100)}%` }}
+              />
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </Card>
+    </div>
   );
 };
 

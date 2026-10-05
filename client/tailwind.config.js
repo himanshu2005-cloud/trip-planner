@@ -6,74 +6,62 @@ export default {
   ],
   theme: {
     extend: {
-      // ── Color palette from DESIGN.md ──────────────────────────────────────
       colors: {
-        purple: {
-          950: '#170B2E',
-          900: '#241044',
-          800: '#32165F',
-          700: '#4C1D95',
-          600: '#6D28D9',
-          500: '#8B5CF6',
-          400: '#A78BFA',
-          300: '#C4B5FD',
+        paper: {
+          DEFAULT: '#0c0c0f',
+          dark: '#08080a',
+          card: '#131317',
+          surface: '#18181f',
         },
-        accent: {
-          pink:  '#E879F9',
-          blue:  '#818CF8',
-          cyan:  '#67E8F9',
+        cream: {
+          DEFAULT: '#f5f2eb',
+          soft: '#e7e3da',
+          muted: '#9e9a91',
+          faint: '#5c5851',
         },
-        // Semantic aliases mapped to CSS variables (applied in index.css)
-        background: 'var(--background)',
-        surface:    'var(--surface)',
-        'text-primary':   'var(--text-primary)',
-        'text-secondary': 'var(--text-secondary)',
-        'text-muted':     'var(--text-muted)',
-        success: '#34D399',
-        warning: '#FBBF24',
-        danger:  '#FB7185',
+        violet: {
+          accent: '#7a5293',
+          deep: '#432357',
+          subtle: 'rgba(122, 82, 147, 0.15)',
+          lavender: '#cebfdf',
+        },
+        editorial: {
+          border: '#23232c',
+          'border-light': '#32323e',
+          rule: '#1c1c23',
+        },
+        // Semantic aliases
+        background: '#0c0c0f',
+        surface: '#131317',
+        'text-primary': '#f5f2eb',
+        'text-secondary': '#9e9a91',
+        'text-muted': '#5c5851',
+        success: '#4ade80',
+        warning: '#facc15',
+        danger: '#f87171',
       },
 
-      // ── Typography ────────────────────────────────────────────────────────
       fontFamily: {
-        sans: [
-          'Inter',
-          'ui-sans-serif',
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"Segoe UI"',
-          'sans-serif',
-        ],
+        serif: ['Newsreader', 'Georgia', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
 
-      // ── Border radius ─────────────────────────────────────────────────────
+      letterSpacing: {
+        'widest-editorial': '0.25em',
+        'wider-editorial': '0.15em',
+      },
+
       borderRadius: {
-        '2xl': '20px',   // standard card radius per DESIGN.md
-        '3xl': '24px',
+        sm: '2px',
+        DEFAULT: '4px',
+        md: '6px',
+        lg: '8px',
       },
 
-      // ── Box shadows ───────────────────────────────────────────────────────
       boxShadow: {
-        'glass': '0 20px 60px rgba(0, 0, 0, 0.25)',
-        'glow-sm': '0 0 12px rgba(139, 92, 246, 0.3)',
-        'glow':    '0 0 24px rgba(139, 92, 246, 0.4)',
-        'glow-lg': '0 0 40px rgba(139, 92, 246, 0.5)',
-      },
-
-      // ── Animation durations (DESIGN.md: 150–300 ms) ──────────────────────
-      transitionDuration: {
-        '200': '200ms',
-        '250': '250ms',
-      },
-
-      // ── Background gradients ──────────────────────────────────────────────
-      backgroundImage: {
-        'purple-gradient': 'linear-gradient(135deg, #7C3AED, #A855F7)',
-        'page-bg': `
-          radial-gradient(circle at 15% 10%, rgba(139,92,246,0.18), transparent 30%),
-          radial-gradient(circle at 85% 20%, rgba(232,121,249,0.10), transparent 28%)
-        `,
+        editorial: '0 10px 40px -10px rgba(0, 0, 0, 0.6)',
+        subtle: '0 4px 20px rgba(0, 0, 0, 0.35)',
       },
     },
   },
