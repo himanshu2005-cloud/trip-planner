@@ -1,6 +1,9 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/env');
 
 const userSchema = new mongoose.Schema(
   {
@@ -32,5 +35,29 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Hash password before saving
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Compare entered password with hashed password in DB
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Generate signed JWT token
+userSchema.methods.generateAuthToken = function () {
+  return jwt.sign(
+    { id: this._id, email: this.email, name: this.name },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN || '7d' }
+  );
+};
 
 module.exports = mongoose.model('User', userSchema);

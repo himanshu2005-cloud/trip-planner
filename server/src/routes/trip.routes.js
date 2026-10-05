@@ -9,12 +9,21 @@ const {
   updateTrip,
   deleteTrip,
 } = require('../controllers/trip.controller');
-const { authenticate } = require('../middleware/auth.middleware');
+const { authenticate, optionalAuth } = require('../middleware/auth.middleware');
 
+// GET all trips for authenticated user
 router.get('/', authenticate, getTrips);
-router.get('/:id', authenticate, getTripById);
-router.post('/', authenticate, createTrip);
+
+// GET single trip by ID (supports authenticated user or guest)
+router.get('/:id', optionalAuth, getTripById);
+
+// POST create a trip (supports authenticated user or guest)
+router.post('/', optionalAuth, createTrip);
+
+// PUT update a trip
 router.put('/:id', authenticate, updateTrip);
+
+// DELETE delete a trip
 router.delete('/:id', authenticate, deleteTrip);
 
 module.exports = router;

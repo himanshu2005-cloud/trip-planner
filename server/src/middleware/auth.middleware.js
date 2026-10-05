@@ -4,13 +4,8 @@
  * middleware/auth.middleware.js
  *
  * JWT authentication middleware.
- * Attach to any route that requires a logged-in user.
- *
- * Usage:
- *   router.get('/protected', authenticate, handler);
- *
- * On success: sets req.user = { id, email }
- * On failure: responds 401 Unauthorized
+ * - authenticate: strict check, requires valid Bearer token
+ * - optionalAuth: populates req.user if Bearer token present, allows through if not
  */
 
 const jwt = require('jsonwebtoken');
@@ -26,11 +21,11 @@ function authenticate(req, res, next) {
     });
   }
 
-  const token = authHeader.slice(7); // strip "Bearer "
+  const token = authHeader.slice(7).trim();
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = { id: decoded.id, email: decoded.email };
+    req.user = { id: decoded.id, email: decoded.email, name: decoded.name };
     next();
   } catch (err) {
     const message =
@@ -42,4 +37,23 @@ function authenticate(req, res, next) {
   }
 }
 
-module.exports = { authenticate };
+function optionalAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    req.user = null;
+    return next();
+  }
+
+  const token = authHeader.slice(7).trim();
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = { id: decoded.id, email: decoded.email, name: decoded.name };
+  } catch (err) {
+    req.user = null;
+  }
+  next();
+}
+
+module.exports = { authenticate, optionalAuth };
