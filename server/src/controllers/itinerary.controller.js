@@ -3,12 +3,68 @@
 /**
  * controllers/itinerary.controller.js
  *
- * Handles itinerary generation and single-day regeneration by coordinating
- * the Google Places data service and the 3-stage optimization engine.
+ * Coordinates Google Places attraction retrieval and the 3-stage optimization engine.
+ * Returns day-wise itinerary strictly matching the database schema:
+ *
+ * Trip
+ *  ├── destination
+ *  ├── budget
+ *  ├── days
+ *  ├── interests
+ *  └── itinerary[]
+ *        ├── day
+ *        ├── date
+ *        ├── totalCost
+ *        ├── totalTravelTime
+ *        └── stops[]
+ *              ├── attraction
+ *              ├── startTime
+ *              ├── duration
+ *              ├── cost
+ *              ├── coordinates
+ *              ├── travelToNext
+ *              └── weather
  */
 
 const { fetchAttractions } = require('../services/places.service');
 const { buildItinerary, regenerateDay } = require('../engine/itineraryBuilder');
+
+/**
+ * Normalizes day and stop objects into the approved MongoDB schema structure.
+ */
+function formatDayForSchema(day) {
+  return {
+    day: day.dayNumber || day.day,
+    dayNumber: day.dayNumber || day.day,
+    date: day.date || '',
+    theme: day.theme || 'City Exploration',
+    totalCost: day.totalCost || 0,
+    totalTravelTime: day.totalTravelTimeMin || day.totalTravelTime || 0,
+    totalTravelTimeMin: day.totalTravelTimeMin || day.totalTravelTime || 0,
+    totalDistanceKm: day.totalDistanceKm || 0,
+    stops: (day.stops || []).map((stop, sIdx) => ({
+      attractionId: stop.placeId || stop.attractionId || `stop-${sIdx + 1}`,
+      attraction: stop.name || stop.attraction,
+      name: stop.name || stop.attraction,
+      startTime: stop.startTime || '09:00',
+      endTime: stop.endTime || '10:00',
+      duration: stop.durationMin || stop.duration || 60,
+      durationMin: stop.durationMin || stop.duration || 60,
+      cost: stop.cost || 0,
+      coordinates: {
+        lat: stop.coordinates?.lat || 0,
+        lng: stop.coordinates?.lng || 0,
+      },
+      category: stop.category || ['Attraction'],
+      rating: stop.rating || 4.5,
+      openingHours: stop.openingHours || { open: '09:00', close: '18:00' },
+      travelToNext: stop.travelToNext || null,
+      weather: stop.weather || 'clear',
+      weatherStatus: stop.weather || 'clear',
+      stopNumber: sIdx + 1,
+    })),
+  };
+}
 
 /**
  * @desc    Generate optimized day-wise itinerary
@@ -53,8 +109,8 @@ exports.generateItinerary = async (req, res, next) => {
       minRating: 4.0,
     });
 
-    // 2. Execute 3-stage optimization engine (k-means -> 2-opt TSP -> Constraints)
-    const generatedDays = buildItinerary(
+    // 2. Execute 3-stage optimization engine
+    const rawDays = buildItinerary(
       attractions,
       {
         numberOfDays: tripDays,
@@ -68,12 +124,15 @@ exports.generateItinerary = async (req, res, next) => {
       }
     );
 
+    // 3. Format days to match schema 1:1
+    const schemaDays = rawDays.map(formatDayForSchema);
+
     // Compute aggregated trip statistics
     let totalSelectedStops = 0;
     let totalEstimatedTravelKm = 0;
     let totalEstimatedCost = 0;
 
-    generatedDays.forEach((day) => {
+    schemaDays.forEach((day) => {
       totalSelectedStops += (day.stops || []).length;
       totalEstimatedTravelKm += day.totalDistanceKm || 0;
       totalEstimatedCost += day.totalCost || 0;
@@ -82,15 +141,15 @@ exports.generateItinerary = async (req, res, next) => {
     res.status(200).json({
       success: true,
       destination: destination.trim(),
-      numberOfDays: tripDays,
-      days: tripDays,
       budget: tripBudget,
+      days: tripDays,
+      numberOfDays: tripDays,
       interests: userInterests,
       attractionsAnalyzed: attractions.length,
       totalSelectedStops,
       totalEstimatedTravelKm: Number(totalEstimatedTravelKm.toFixed(1)),
       totalEstimatedCost,
-      itinerary: generatedDays,
+      itinerary: schemaDays,
     });
   } catch (err) {
     next(err);
@@ -123,19 +182,19 @@ exports.regenerateDay = async (req, res, next) => {
       });
     }
 
-    // Fetch attraction pool
     const attractions = await fetchAttractions(destination.trim(), interests, {
       limit: 30,
       minRating: 4.0,
     });
 
-    // Run isolated single-day re-plan with user reason preference
-    const updatedDay = regenerateDay(attractions, existingDays, targetDay, {
+    const rawUpdatedDay = regenerateDay(attractions, existingDays, targetDay, {
       reason,
       budgetRemaining: dayBudget,
       dayStart: '09:00',
       dayEnd: '19:00',
     });
+
+    const updatedDay = formatDayForSchema(rawUpdatedDay);
 
     res.status(200).json({
       success: true,
