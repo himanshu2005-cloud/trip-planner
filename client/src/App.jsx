@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import PlanTripPage from './pages/PlanTripPage';
 import ItineraryPage from './pages/ItineraryPage';
 import MyTripsPage from './pages/MyTripsPage';
+import ExplorePage from './pages/ExplorePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -17,6 +18,7 @@ export const App = () => {
         <Route path="plan" element={<PlanTripPage />} />
         <Route path="itinerary" element={<ItineraryPage />} />
         <Route path="trips" element={<MyTripsPage />} />
+        <Route path="explore" element={<ExplorePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="404" element={<NotFoundPage />} />
