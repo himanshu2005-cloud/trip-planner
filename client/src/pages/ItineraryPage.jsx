@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { Calendar, Share2, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import DayTabs from '../components/itinerary/DayTabs';
 import DayTimeline from '../components/itinerary/DayTimeline';
@@ -8,8 +9,12 @@ import WeatherAlert from '../components/itinerary/WeatherAlert';
 import RouteMap from '../components/editorial/RouteMap';
 import TravelButton from '../components/editorial/TravelButton';
 import Modal from '../components/ui/Modal';
+import AddStopModal from '../components/itinerary/AddStopModal';
+import ShareTripModal from '../components/itinerary/ShareTripModal';
 import itineraryService from '../services/itineraryService';
 import { getItineraryForDestination, REALISTIC_JAIPUR_ITINERARY } from '../utils/mockItinerary';
+import { downloadIcsCalendar } from '../utils/calendarExport';
+import { getGoogleMapsMultiStopUrl } from '../utils/mapsNavigation';
 
 export const ItineraryPage = () => {
   const location = useLocation();
@@ -64,6 +69,8 @@ export const ItineraryPage = () => {
   const [isSaved, setIsSaved] = useState(Boolean(location.state?.tripId || location.state?.trip?._id));
   const [toastMessage, setToastMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Synchronize state if navigation state changes
   useEffect(() => {
@@ -228,11 +235,72 @@ export const ItineraryPage = () => {
     }
   };
 
+  // Add stop to current active day
+  const handleAddStop = (newStop) => {
+    setDays((prevDays) =>
+      prevDays.map((d) => {
+        if (d.dayNumber !== activeDay) return d;
+        const updatedStops = [...(d.stops || []), newStop];
+        const newTotalCost = updatedStops.reduce((sum, s) => sum + (s.cost || 0), 0);
+        return {
+          ...d,
+          stops: updatedStops,
+          totalCost: newTotalCost,
+        };
+      })
+    );
+    showToast(`Added "${newStop.name}" to Day 0${activeDay}`);
+  };
+
+  // Delete stop from current active day
+  const handleDeleteStop = (stopIndex) => {
+    setDays((prevDays) =>
+      prevDays.map((d) => {
+        if (d.dayNumber !== activeDay) return d;
+        const updatedStops = d.stops.filter((_, idx) => idx !== stopIndex);
+        const newTotalCost = updatedStops.reduce((sum, s) => sum + (s.cost || 0), 0);
+        return {
+          ...d,
+          stops: updatedStops,
+          totalCost: newTotalCost,
+        };
+      })
+    );
+    showToast(`Waypoint removed from Day 0${activeDay}`);
+  };
+
+  // Move stop up or down in current active day
+  const handleMoveStop = (stopIndex, direction) => {
+    setDays((prevDays) =>
+      prevDays.map((d) => {
+        if (d.dayNumber !== activeDay) return d;
+        const stopsCopy = [...(d.stops || [])];
+        const targetIndex = direction === 'up' ? stopIndex - 1 : stopIndex + 1;
+        if (targetIndex < 0 || targetIndex >= stopsCopy.length) return d;
+
+        const temp = stopsCopy[stopIndex];
+        stopsCopy[stopIndex] = stopsCopy[targetIndex];
+        stopsCopy[targetIndex] = temp;
+
+        return {
+          ...d,
+          stops: stopsCopy,
+        };
+      })
+    );
+  };
+
+  // Export calendar (.ics) file
+  const handleExportCalendar = () => {
+    downloadIcsCalendar({ destination, days });
+    showToast('Downloaded .ics calendar file for Apple/Google Calendar');
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 py-10">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-8 right-8 z-50 px-5 py-3 bg-[#18181f] text-[#f5f2eb] font-mono text-xs border border-[#7a5293] shadow-editorial flex items-center gap-3">
+        <div className="fixed bottom-8 right-8 z-50 px-5 py-3 dark:bg-[#18181f] bg-white dark:text-[#f5f2eb] text-[#18181c] font-mono text-xs border border-[#7a5293] shadow-editorial flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-[#7a5293]" />
           <span>{toastMessage}</span>
         </div>
@@ -246,23 +314,58 @@ export const ItineraryPage = () => {
       )}
 
       {/* Top Dispatch Bar */}
-      <div className="flex items-center justify-between pb-6 border-b border-[#23232c] mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b dark:border-[#23232c] border-[#e2dbcd] gap-4 mb-8">
         <Link
           to="/plan"
-          className="inline-flex items-center gap-2 font-mono text-[11px] tracking-wider text-[#9e9a91] hover:text-[#f5f2eb] uppercase transition-colors"
+          className="inline-flex items-center gap-2 font-mono text-[11px] tracking-wider dark:text-[#9e9a91] text-[#635f56] dark:hover:text-[#f5f2eb] hover:text-[#18181c] uppercase transition-colors"
         >
           <span>←</span>
           <span>EDIT TRIP PARAMETERS</span>
         </Link>
 
-        <div className="flex items-center gap-4">
+        {/* Real-world Action Buttons: Maps, Calendar, Share, Save */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {/* 🗺️ 1-Click Google Maps Multi-Stop Navigation */}
+          <a
+            href={getGoogleMapsMultiStopUrl(destination, currentDayData.stops)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#6D3FD9] hover:bg-[#5b2fb8] text-white text-xs font-mono font-medium tracking-wider uppercase transition-all shadow-sm cursor-pointer"
+            title="Open Day in Google Maps Navigation"
+          >
+            <MapPin size={13} />
+            <span>Open in Google Maps ↗</span>
+          </a>
+
+          {/* Calendar Sync */}
+          <button
+            type="button"
+            onClick={handleExportCalendar}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border dark:border-[#2a2a36] border-[#ded7ca] dark:bg-[#15151c] bg-[#f6f2ea] text-xs font-mono dark:text-[#9e9a91] text-[#635f56] dark:hover:text-[#f5f2eb] hover:text-[#18181c] transition-all cursor-pointer shadow-sm"
+            title="Download .ics Calendar File"
+          >
+            <Calendar size={13} />
+            <span className="hidden sm:inline">Calendar (.ics)</span>
+          </button>
+
+          {/* WhatsApp / Public Share */}
+          <button
+            type="button"
+            onClick={() => setIsShareModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border dark:border-[#2a2a36] border-[#ded7ca] dark:bg-[#15151c] bg-[#f6f2ea] text-xs font-mono dark:text-[#9e9a91] text-[#635f56] dark:hover:text-[#f5f2eb] hover:text-[#18181c] transition-all cursor-pointer shadow-sm"
+            title="Share Itinerary"
+          >
+            <Share2 size={13} />
+            <span>Share</span>
+          </button>
+
           <TravelButton
             variant={isSaved ? 'solid' : 'violet'}
             arrow={false}
             onClick={handleSaveTrip}
             disabled={isSaving}
           >
-            {isSaving ? 'SAVING...' : isSaved ? '✓ SAVED IN MY TRIPS' : 'SAVE ITINERARY +'}
+            {isSaving ? 'SAVING...' : isSaved ? '✓ SAVED' : 'SAVE ITINERARY +'}
           </TravelButton>
         </div>
       </div>
@@ -322,6 +425,9 @@ export const ItineraryPage = () => {
             onSelectStop={setSelectedStopIndex}
             onRegenerateDay={() => setIsRegenerateModalOpen(true)}
             isRegenerating={isRegenerating}
+            onMoveStop={handleMoveStop}
+            onDeleteStop={handleDeleteStop}
+            onOpenAddModal={() => setIsAddModalOpen(true)}
           />
 
           {/* Expedition Ledger */}
@@ -397,6 +503,23 @@ export const ItineraryPage = () => {
           </div>
         </div>
       </Modal>
+      {/* Add Custom/Recommended Stop Modal */}
+      <AddStopModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddStop={handleAddStop}
+        dayNumber={activeDay}
+        destination={destination}
+      />
+
+      {/* Share Trip Modal (WhatsApp & Public Link) */}
+      <ShareTripModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        destination={destination}
+        days={days}
+        budget={budget}
+      />
     </div>
   );
 };

@@ -28,9 +28,14 @@ const getPhotoForStop = (name = '', category = '') => {
 export const TimelineItem = ({
   stop,
   index,
+  destination = 'India',
+  isFirst = false,
   isLast = false,
   onSelect,
   isSelected = false,
+  onMoveUp,
+  onMoveDown,
+  onDelete,
 }) => {
   const {
     name,
@@ -82,20 +87,81 @@ export const TimelineItem = ({
         {/* Right Column: Place Name, Notes & Optional Photograph (9 cols) */}
         <div className="md:col-span-9 flex flex-col gap-3">
           <div>
-            <div className="flex items-baseline gap-3">
-              <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#7a5293] font-semibold">
-                {category || 'Destination'}
-              </span>
-              {rating && (
-                <span className="text-[11px] text-[#9e9a91] font-mono">
-                  ★ {rating}
+            <div className="flex items-center justify-between">
+              <div className="flex items-baseline gap-3">
+                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#7a5293] font-semibold">
+                  {category || 'Destination'}
                 </span>
-              )}
+                {rating && (
+                  <span className="text-[11px] text-[#9e9a91] font-mono">
+                    ★ {rating}
+                  </span>
+                )}
+              </div>
+
+              {/* Waypoint Sequence Controls (Move & Delete) */}
+              <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                {onMoveUp && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMoveUp();
+                    }}
+                    disabled={isFirst}
+                    title="Move stop earlier in day"
+                    className="p-1 px-1.5 rounded border dark:border-[#23232c] border-[#e2dbcd] dark:bg-[#181820] bg-[#f2ece2] text-[10px] font-mono dark:text-[#9e9a91] text-[#635f56] hover:text-[#7a5293] disabled:opacity-20 cursor-pointer disabled:cursor-default"
+                  >
+                    ▲
+                  </button>
+                )}
+                {onMoveDown && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMoveDown();
+                    }}
+                    disabled={isLast}
+                    title="Move stop later in day"
+                    className="p-1 px-1.5 rounded border dark:border-[#23232c] border-[#e2dbcd] dark:bg-[#181820] bg-[#f2ece2] text-[10px] font-mono dark:text-[#9e9a91] text-[#635f56] hover:text-[#7a5293] disabled:opacity-20 cursor-pointer disabled:cursor-default"
+                  >
+                    ▼
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    title="Remove stop from day"
+                    className="p-1 px-1.5 rounded border dark:border-[#23232c] border-[#e2dbcd] dark:bg-[#181820] bg-[#f2ece2] text-[10px] font-mono dark:text-[#9e9a91] text-[#635f56] hover:text-red-500 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
 
             <h3 className="font-serif text-2xl sm:text-3xl text-[#f5f2eb] tracking-tight mt-1 group-hover:text-[#cebfdf] transition-colors">
               {name}
             </h3>
+
+            <div className="flex items-center gap-3 mt-1">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${destination}, India`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 font-mono text-[10px] tracking-wider text-[#6D3FD9] dark:text-[#a78bfa] hover:underline uppercase cursor-pointer"
+                title={`Navigate to ${name} in Google Maps`}
+              >
+                <span>Navigate in Maps</span>
+                <span>↗</span>
+              </a>
+            </div>
 
             {description && (
               <p className="font-serif italic text-sm text-[#9e9a91] mt-1.5 leading-relaxed max-w-xl">
