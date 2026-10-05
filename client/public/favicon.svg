@@ -2,17 +2,28 @@
   <title>TripPilot Itinerary Planner</title>
   <desc>A purple circle containing a white paper plane with a dotted flight path, next to the wordmark TripPilot.</desc>
   
+  <style>
+    .brand-trip { fill: #18181c; }
+    .brand-pilot { fill: #6D3FD9; }
+    .brand-sub { fill: #666053; }
+    @media (prefers-color-scheme: dark) {
+      .brand-trip { fill: #f5f2eb; }
+      .brand-pilot { fill: #A78BFA; }
+      .brand-sub { fill: #9e9a91; }
+    }
+  </style>
+
   <!-- Icon Mark -->
   <circle cx="130" cy="150" r="62" fill="#6D3FD9" />
   <path d="M92 196 C100 176 108 172 124 166" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 9" />
   <polygon points="180,114 98,150 130,161 146,192" fill="#FFFFFF" />
   <path d="M130 161 L180 114" fill="none" stroke="#6D3FD9" stroke-width="4" stroke-linecap="round" />
   
-  <!-- Wordmark -->
-  <text x="222" y="170" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="68" font-weight="600" letter-spacing="-2" fill="#f5f2eb">
-    Trip<tspan fill="#A78BFA">Pilot</tspan>
+  <!-- Wordmark: Trip in bold high-contrast, Pilot in vibrant purple -->
+  <text x="222" y="170" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="68" font-weight="700" letter-spacing="-2" fill="#18181c" class="brand-trip">
+    Trip<tspan fill="#6D3FD9" class="brand-pilot">Pilot</tspan>
   </text>
-  <text x="226" y="204" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="13" font-weight="500" letter-spacing="5" fill="#9e9a91">
-    ITINERARY PLANNER
+  <text x="226" y="204" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" letter-spacing="5" fill="#666053" class="brand-sub">
+    TRIP PLANNER · INDIA
   </text>
 </svg>

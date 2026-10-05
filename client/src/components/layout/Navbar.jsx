@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Logo from '../ui/Logo';
+import ThemeToggle from '../ui/ThemeToggle';
 
 export const Navbar = () => {
   const location = useLocation();
@@ -17,7 +18,7 @@ export const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-[64px] bg-[#0c0c0f]/95 backdrop-blur-md border-b border-[#1c1c23] px-6 lg:px-12 flex items-center transition-all">
+    <header className="fixed top-0 left-0 right-0 z-50 h-[64px] dark:bg-[#0c0c0f]/95 bg-[#fbf9f4]/95 backdrop-blur-md border-b dark:border-[#1c1c23] border-[#e8e2d5] px-6 lg:px-12 flex items-center transition-colors duration-200">
       <div className="w-full max-w-7xl mx-auto grid grid-cols-12 items-center">
         {/* Left Column: Brand Logo with favicon.svg (3 cols) */}
         <div className="col-span-6 md:col-span-3 flex items-center">
@@ -32,43 +33,45 @@ export const Navbar = () => {
               to={link.path}
               className={`text-[11px] tracking-[0.18em] font-medium transition-all relative py-1 ${
                 isActive(link.path)
-                  ? 'text-[#f5f2eb] font-semibold'
-                  : 'text-[#9e9a91] hover:text-[#f5f2eb]'
+                  ? 'dark:text-[#f5f2eb] text-[#18181c] font-semibold'
+                  : 'dark:text-[#9e9a91] text-[#635f56] dark:hover:text-[#f5f2eb] hover:text-[#18181c]'
               }`}
             >
               <span>{link.label}</span>
               {isActive(link.path) && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#7a5293]" />
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] dark:bg-[#7a5293] bg-[#6D3FD9]" />
               )}
             </Link>
           ))}
         </nav>
 
-        {/* Right Column: User Auth / Quick Action CTA (3 cols) */}
-        <div className="col-span-6 md:col-span-3 flex items-center justify-end gap-5">
+        {/* Right Column: User Auth, Theme Toggle & Quick Action CTA (3 cols) */}
+        <div className="col-span-6 md:col-span-3 flex items-center justify-end gap-3 sm:gap-4">
+          <ThemeToggle />
+
           {isAuthenticated ? (
-            <div className="flex items-center gap-4 text-[11px] tracking-[0.14em]">
-              <span className="text-[#9e9a91] hidden lg:inline font-mono">
+            <div className="flex items-center gap-3 text-[11px] tracking-[0.14em]">
+              <span className="dark:text-[#9e9a91] text-[#635f56] hidden lg:inline font-mono">
                 {user?.name || user?.email?.split('@')[0]}
               </span>
               <button
                 onClick={logout}
-                className="text-[#9e9a91] hover:text-[#f5f2eb] transition-colors uppercase font-medium cursor-pointer"
+                className="dark:text-[#9e9a91] text-[#635f56] dark:hover:text-[#f5f2eb] hover:text-[#18181c] transition-colors uppercase font-medium cursor-pointer"
               >
                 Sign out
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-4 text-[11px] tracking-[0.16em]">
+            <div className="flex items-center gap-3 text-[11px] tracking-[0.16em]">
               <Link
                 to="/login"
-                className="text-[#9e9a91] hover:text-[#f5f2eb] transition-colors font-medium hidden sm:inline"
+                className="dark:text-[#9e9a91] text-[#635f56] dark:hover:text-[#f5f2eb] hover:text-[#18181c] transition-colors font-medium hidden sm:inline"
               >
                 SIGN IN
               </Link>
               <Link
                 to="/plan"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#432357] hover:bg-[#522a6a] border border-[#7a5293] text-[#f5f2eb] font-mono text-[10px] tracking-wider uppercase transition-all duration-200"
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-[#6D3FD9] hover:bg-[#5b2fb8] border border-[#7a5293] text-white font-mono text-[10px] tracking-wider uppercase transition-all duration-200 shadow-sm"
               >
                 <span>+ PLAN A TRIP</span>
               </Link>

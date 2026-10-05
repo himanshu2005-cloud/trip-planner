@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Cinematic Travel Journal Palette (Kinfolk x Monocle) */
+  /* Default Cinematic Dark Mode */
   --background:           #0c0c0f;
   --background-dark:      #08080a;
   --surface:              #131317;
@@ -13,7 +13,7 @@
   --border-light:         #32323e;
   --rule:                 #1c1c23;
 
-  /* Restrained Violet & Deep Purple (No neon) */
+  /* Restrained Violet & Deep Purple */
   --violet-accent:        #7a5293;
   --violet-deep:          #432357;
   --violet-subtle:        rgba(122, 82, 147, 0.15);
@@ -34,6 +34,33 @@
   --radius-lg:            6px;
 }
 
+html.light,
+.light {
+  /* Editorial Light Mode (Warm Ivory, Rich Charcoal, Heritage Violet) */
+  --background:           #fbf9f4;
+  --background-dark:      #f3ede2;
+  --surface:              #ffffff;
+  --surface-elevated:     #f7f3ec;
+
+  --border:               #e3dccf;
+  --border-light:         #d4ccbe;
+  --rule:                 #eae3d5;
+
+  --violet-accent:        #6d3fd9;
+  --violet-deep:          #4b227c;
+  --violet-subtle:        rgba(109, 63, 217, 0.08);
+  --lavender:             #572a78;
+
+  --text-primary:         #1a1917;
+  --text-secondary:       #5d574d;
+  --text-muted:           #878073;
+  --text-faint:           #b5ada0;
+
+  --success:              #16a34a;
+  --warning:              #ca8a04;
+  --danger:               #dc2626;
+}
+
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;
@@ -46,6 +73,7 @@
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--background);
     color: var(--text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   body {
@@ -273,3 +301,83 @@
     border-color: var(--border-light);
   }
 }
+
+/* ── Light Mode Harmonizations ────────────────────────────────────────────── */
+html.light body {
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+html.light .editorial-panel,
+html.light .editorial-card-bordered {
+  background: #ffffff;
+  border-color: #e3dccf;
+  color: #1a1917;
+}
+
+html.light .editorial-input {
+  background: #ffffff;
+  border-color: #e3dccf;
+  color: #1a1917;
+}
+
+html.light .editorial-input:focus {
+  background: #ffffff;
+  border-color: #6d3fd9;
+}
+
+/* Global Light Mode Surface and Color Mappings */
+html.light .bg-\[\#0c0c0f\] {
+  background-color: #fbf9f4 !important;
+}
+html.light .bg-\[\#08080a\] {
+  background-color: #f4eee3 !important;
+}
+html.light .bg-\[\#131317\] {
+  background-color: #ffffff !important;
+}
+html.light .bg-\[\#141418\],
+html.light .bg-\[\#15151c\],
+html.light .bg-\[\#18181f\],
+html.light .bg-\[\#181820\],
+html.light .bg-\[\#181822\] {
+  background-color: #f6f2ea !important;
+}
+html.light .bg-\[\#0c0c0f\]\/95 {
+  background-color: rgba(251, 249, 244, 0.95) !important;
+}
+html.light .bg-\[\#0c0c0f\]\/80 {
+  background-color: rgba(251, 249, 244, 0.85) !important;
+}
+
+html.light .border-\[\#1c1c23\],
+html.light .border-\[\#23232c\],
+html.light .border-\[\#272733\],
+html.light .border-\[\#2d2d38\],
+html.light .border-\[\#292938\],
+html.light .border-\[\#32323e\] {
+  border-color: #e2dbcd !important;
+}
+
+html.light .text-\[\#f5f2eb\],
+html.light .text-\[\#e7e3da\] {
+  color: #191816 !important;
+}
+
+html.light .text-\[\#9e9a91\] {
+  color: #5c564b !important;
+}
+
+html.light .text-\[\#5c5851\],
+html.light .text-\[\#6e6b66\] {
+  color: #847c6e !important;
+}
+
+html.light .text-\[\#cebfdf\] {
+  color: #52277d !important;
+}
+
+html.light .shadow-editorial {
+  box-shadow: 0 10px 30px -10px rgba(80, 60, 40, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
