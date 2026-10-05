@@ -359,9 +359,24 @@ html.light .border-\[\#32323e\] {
   border-color: #e2dbcd !important;
 }
 
-html.light .text-\[\#f5f2eb\],
-html.light .text-\[\#e7e3da\] {
+/* In light mode, turn cream text to rich charcoal EXCEPT when inside dark/colored buttons or badges */
+html.light :not(button):not(a[class*="bg-"]):not([class*="bg-[#6D3FD9]"]):not([class*="bg-[#432357]"]):not([class*="bg-[#25D366]"]):not([class*="bg-gradient"]):not([class*="bg-[#121217]"]):not(.text-white).text-\[\#f5f2eb\],
+html.light :not(button):not(a[class*="bg-"]):not([class*="bg-[#6D3FD9]"]):not([class*="bg-[#432357]"]):not([class*="bg-[#25D366]"]):not([class*="bg-gradient"]):not([class*="bg-[#121217]"]):not(.text-white).text-\[\#e7e3da\] {
   color: #191816 !important;
+}
+
+/* Ensure button and badge text on colored containers stays crisp white in all modes */
+.text-white,
+html.light .text-white,
+html.light a[class*="bg-[#6D3FD9]"],
+html.light a[class*="bg-[#6D3FD9]"] *,
+html.light button[class*="bg-[#6D3FD9]"],
+html.light button[class*="bg-[#6D3FD9]"] *,
+html.light button[class*="bg-[#25D366]"],
+html.light button[class*="bg-[#25D366]"] *,
+html.light [class*="bg-gradient"] span,
+html.light [class*="bg-gradient"] * {
+  color: #ffffff !important;
 }
 
 html.light .text-\[\#9e9a91\] {

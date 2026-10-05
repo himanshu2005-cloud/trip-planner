@@ -20,24 +20,24 @@ export const BudgetSummary = ({
   ];
 
   return (
-    <div className="w-full bg-[#131317] border border-[#23232c] p-6 mt-10">
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-4 border-b border-[#23232c] gap-2">
+    <div className="w-full dark:bg-[#131317] bg-white border dark:border-[#23232c] border-[#ded7ca] p-6 mt-10 rounded-xl shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-4 border-b dark:border-[#23232c] border-[#e8e2d5] gap-2">
         <div>
-          <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#7a5293]">
+          <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6D3FD9] dark:text-[#a78bfa] font-semibold">
             EXPEDITION LEDGER
           </span>
-          <h3 className="font-serif text-xl text-[#f5f2eb] mt-0.5">
+          <h3 className="font-serif text-xl sm:text-2xl dark:text-[#ffffff] text-[#18181c] font-normal mt-0.5">
             Estimated Budget Allocation
           </h3>
         </div>
 
         <div className="text-left sm:text-right">
-          <span className="font-mono text-[10px] tracking-wider text-[#5c5851] uppercase block">
+          <span className="font-mono text-[10px] tracking-wider dark:text-[#7e796e] text-[#6b6558] uppercase block">
             EST. TOTAL / TARGET
           </span>
-          <span className="font-mono text-base font-semibold text-[#f5f2eb]">
+          <span className="font-mono text-base font-bold dark:text-[#ffffff] text-[#18181c]">
             ₹{estimatedCost.toLocaleString()}{' '}
-            <span className="text-xs font-normal text-[#5c5851]">
+            <span className="text-xs font-normal dark:text-[#7e796e] text-[#847c6d]">
               / ₹{totalBudget?.toLocaleString()}
             </span>
           </span>
@@ -47,15 +47,15 @@ export const BudgetSummary = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-5">
         {categories.map((cat) => (
           <div key={cat.label} className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] tracking-wider text-[#9e9a91] uppercase">
+            <span className="font-mono text-[10px] tracking-wider dark:text-[#a09c93] text-[#5c564b] uppercase font-medium">
               {cat.label}
             </span>
-            <span className="font-mono text-sm text-[#f5f2eb]">
+            <span className="font-mono text-sm font-semibold dark:text-[#ffffff] text-[#18181c]">
               ₹{cat.amount.toLocaleString()}
             </span>
-            <div className="w-full h-[2px] bg-[#1c1c23] mt-1 overflow-hidden">
+            <div className="w-full h-[3px] dark:bg-[#202028] bg-[#e8e2d5] mt-1 overflow-hidden rounded-full">
               <div
-                className="h-full bg-[#7a5293]"
+                className="h-full bg-[#6D3FD9] dark:bg-[#a855f7]"
                 style={{ width: `${Math.min(cat.percent, 100)}%` }}
               />
             </div>
