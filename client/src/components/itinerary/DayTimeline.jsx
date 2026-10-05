@@ -5,7 +5,7 @@ import TravelButton from '../editorial/TravelButton';
 
 export const DayTimeline = ({
   day,
-  destination = 'Paris, France',
+  destination = 'Jaipur, Rajasthan',
   activeDay = 1,
   onRegenerateDay,
   isRegenerating = false,

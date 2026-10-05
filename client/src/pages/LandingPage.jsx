@@ -269,7 +269,7 @@ export const LandingPage = () => {
               <img src="/favicon.svg" alt="TripPilot" className="w-full h-full object-cover scale-[1.3]" />
             </div>
             <span className="font-mono text-[10px] tracking-[0.25em] text-[#e7e3da] uppercase">
-              INDIA TRAVEL JOURNAL · VOL. I
+              SMART INDIAN TRIP PLANNER · 2027
             </span>
             <span className="hidden sm:inline text-white/30 text-xs font-mono">/</span>
             <span className="hidden sm:inline font-mono text-[10px] tracking-[0.2em] text-[#9e9a91]">
@@ -316,7 +316,7 @@ export const LandingPage = () => {
                   })
                 }
               >
-                OPEN VARANASI JOURNAL
+                OPEN VARANASI ITINERARY
               </TravelButton>
             </div>
           </div>
@@ -531,7 +531,7 @@ export const LandingPage = () => {
               variant="arrow"
               onClick={() => handleOpenPreviewTrip(activeCityData)}
             >
-              VIEW FULL {activeCityData.name.toUpperCase()} JOURNAL
+              VIEW FULL {activeCityData.name.toUpperCase()} ITINERARY
             </TravelButton>
           </div>
 

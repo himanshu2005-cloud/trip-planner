@@ -175,7 +175,7 @@ export const ExplorePage = () => {
               </div>
 
               <TravelButton variant="solid" arrow>
-                VIEW JOURNAL
+                VIEW ITINERARY
               </TravelButton>
             </div>
           </article>

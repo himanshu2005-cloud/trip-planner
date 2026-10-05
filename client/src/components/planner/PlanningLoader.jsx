@@ -21,7 +21,7 @@ export const PlanningLoader = ({ currentStepIndex = 2 }) => {
       </div>
 
       <h3 className="font-serif text-3xl text-[#f5f2eb] mb-2">
-        Composing your journal...
+        Composing your itinerary...
       </h3>
       <p className="font-serif italic text-sm text-[#9e9a91] mb-8">
         Organizing geography, pacing, and neighborhood sequences into a cohesive itinerary.

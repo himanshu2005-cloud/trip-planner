@@ -9,7 +9,7 @@ import RouteMap from '../components/editorial/RouteMap';
 import TravelButton from '../components/editorial/TravelButton';
 import Modal from '../components/ui/Modal';
 import itineraryService from '../services/itineraryService';
-import { REALISTIC_PARIS_ITINERARY } from '../utils/mockItinerary';
+import { getItineraryForDestination, REALISTIC_JAIPUR_ITINERARY } from '../utils/mockItinerary';
 
 export const ItineraryPage = () => {
   const location = useLocation();
@@ -18,10 +18,10 @@ export const ItineraryPage = () => {
 
   const generatedData = location.state?.generatedData;
   const initialCriteria = location.state?.criteria || {
-    destination: generatedData?.destination || 'Paris, France',
-    numberOfDays: generatedData?.numberOfDays || 5,
-    budget: generatedData?.budget || 40000,
-    interests: generatedData?.interests || ['Art', 'Architecture', 'Culture'],
+    destination: generatedData?.destination || 'Jaipur, Rajasthan',
+    numberOfDays: generatedData?.numberOfDays || 4,
+    budget: generatedData?.budget || 24000,
+    interests: generatedData?.interests || ['Heritage', 'Forts', 'Architecture'],
   };
 
   // State
@@ -42,12 +42,17 @@ export const ItineraryPage = () => {
     location.state?.tripId || location.state?.trip?._id || null
   );
 
-  // Real Days state
+  // Real Days state: dynamically resolved to match the chosen destination!
   const [days, setDays] = useState(() => {
     if (generatedData?.itinerary && generatedData.itinerary.length > 0) {
       return generatedData.itinerary;
     }
-    return REALISTIC_PARIS_ITINERARY;
+    const currentDest =
+      generatedData?.destination ||
+      initialCriteria?.destination ||
+      location.state?.criteria?.destination ||
+      'Jaipur, Rajasthan';
+    return getItineraryForDestination(currentDest);
   });
 
   const [activeDay, setActiveDay] = useState(1);
@@ -66,17 +71,34 @@ export const ItineraryPage = () => {
       setTripId(location.state.tripId);
       setIsSaved(true);
     }
-    if (location.state?.generatedData) {
-      const data = location.state.generatedData;
-      setDestination(data.destination);
-      setNumberOfDays(data.numberOfDays);
-      setBudget(data.budget);
-      setInterests(data.interests);
-      if (data.itinerary && data.itinerary.length > 0) {
-        setDays(data.itinerary);
-        setActiveDay(1);
-        setSelectedStopIndex(0);
-      }
+
+    const targetDest =
+      location.state?.generatedData?.destination ||
+      location.state?.criteria?.destination;
+
+    if (targetDest) {
+      setDestination(targetDest);
+    }
+
+    const stateCrit = location.state?.criteria;
+    if (stateCrit?.numberOfDays) {
+      setNumberOfDays(stateCrit.numberOfDays);
+    }
+    if (stateCrit?.budget) {
+      setBudget(stateCrit.budget);
+    }
+    if (stateCrit?.interests) {
+      setInterests(stateCrit.interests);
+    }
+
+    if (location.state?.generatedData?.itinerary?.length > 0) {
+      setDays(location.state.generatedData.itinerary);
+      setActiveDay(1);
+      setSelectedStopIndex(0);
+    } else if (targetDest) {
+      setDays(getItineraryForDestination(targetDest));
+      setActiveDay(1);
+      setSelectedStopIndex(0);
     }
   }, [location.state]);
 
@@ -113,7 +135,7 @@ export const ItineraryPage = () => {
   // Save or Update Trip action
   const handleSaveTrip = async () => {
     if (!isAuthenticated) {
-      showToast('Please sign in to archive this journey to your journal.');
+      showToast('Please sign in to save this trip to your profile.');
       setTimeout(() => navigate('/login', { state: { from: location } }), 1200);
       return;
     }
@@ -150,18 +172,18 @@ export const ItineraryPage = () => {
       if (tripId) {
         await itineraryService.updateTrip(tripId, payload);
         setIsSaved(true);
-        showToast('Journal volume updated.');
+        showToast('Trip itinerary updated.');
       } else {
         const res = await itineraryService.saveTrip(payload);
         if (res?.data?._id) {
           setTripId(res.data._id);
         }
         setIsSaved(true);
-        showToast('Archived in My Journal.');
+        showToast('Saved to My Trips!');
       }
     } catch (err) {
       setErrorMessage(
-        err.response?.data?.message || 'Failed to archive journey.'
+        err.response?.data?.message || 'Failed to save itinerary.'
       );
     } finally {
       setIsSaving(false);
@@ -195,11 +217,11 @@ export const ItineraryPage = () => {
             d.dayNumber === activeDay ? response.updatedDay : d
           )
         );
-        showToast(`Day 0${activeDay} re-composed around "${selectedReason}"`);
+        showToast(`Day 0${activeDay} re-optimized around "${selectedReason}"`);
       }
     } catch (err) {
       setErrorMessage(
-        err.response?.data?.message || 'Failed to re-compose day.'
+        err.response?.data?.message || 'Failed to re-optimize day.'
       );
     } finally {
       setIsRegenerating(false);
@@ -230,7 +252,7 @@ export const ItineraryPage = () => {
           className="inline-flex items-center gap-2 font-mono text-[11px] tracking-wider text-[#9e9a91] hover:text-[#f5f2eb] uppercase transition-colors"
         >
           <span>←</span>
-          <span>EDIT PARAMETERS</span>
+          <span>EDIT TRIP PARAMETERS</span>
         </Link>
 
         <div className="flex items-center gap-4">
@@ -240,7 +262,7 @@ export const ItineraryPage = () => {
             onClick={handleSaveTrip}
             disabled={isSaving}
           >
-            {isSaving ? 'ARCHIVING...' : isSaved ? '✓ ARCHIVED IN JOURNAL' : 'SAVE TO JOURNAL +'}
+            {isSaving ? 'SAVING...' : isSaved ? '✓ SAVED IN MY TRIPS' : 'SAVE ITINERARY +'}
           </TravelButton>
         </div>
       </div>
@@ -370,7 +392,7 @@ export const ItineraryPage = () => {
               onClick={handleRegenerate}
               disabled={isRegenerating}
             >
-              {isRegenerating ? 'RE-COMPOSING...' : 'APPLY TO JOURNAL'}
+              {isRegenerating ? 'RE-OPTIMIZING...' : 'UPDATE DAY ITINERARY'}
             </TravelButton>
           </div>
         </div>

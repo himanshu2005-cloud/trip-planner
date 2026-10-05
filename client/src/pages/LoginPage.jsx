@@ -43,10 +43,10 @@ export const LoginPage = () => {
         <div className="text-center mb-8 flex flex-col items-center">
           <Logo size="lg" className="mb-4" />
           <h2 className="font-serif-headline text-3xl text-[#f5f2eb]">
-            Access Your Journal
+            Access Your Trips
           </h2>
           <p className="font-serif italic text-xs text-[#9e9a91] mt-1">
-            Sign in to retrieve your archived Indian expeditions and custom waypoints.
+            Sign in to retrieve your saved Indian itineraries and custom waypoints.
           </p>
         </div>
 

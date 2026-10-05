@@ -7,7 +7,7 @@ import React, { useState } from 'react';
  */
 export const RouteMap = ({
   stops = [],
-  destination = 'Kyoto, Japan',
+  destination = 'Jaipur, Rajasthan',
   activeDay = 1,
   selectedStopIndex = 0,
   onSelectStop,

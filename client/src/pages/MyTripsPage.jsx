@@ -74,27 +74,27 @@ export const MyTripsPage = () => {
           <div className="flex items-center gap-3 mb-2">
             <Logo size="sm" showWordmark={false} />
             <span className="font-mono text-[10px] tracking-[0.25em] text-[#7a5293] uppercase font-semibold">
-              MY TRAVEL JOURNAL
+              MY SAVED TRIPS
             </span>
           </div>
           <h1 className="font-serif-headline text-4xl sm:text-5xl lg:text-6xl text-[#f5f2eb]">
-            Archived Expeditions
+            Saved Itineraries
           </h1>
           <p className="font-serif-subheadline text-base sm:text-lg text-[#9e9a91] mt-1">
-            Access, view, and re-optimize your planned journeys across India.
+            Access, view, and customize your planned journeys across India.
           </p>
         </div>
 
         <Link to="/plan">
           <TravelButton variant="violet" arrow>
-            + PLAN NEW INDIAN EXPEDITION
+            + PLAN A NEW TRIP
           </TravelButton>
         </Link>
       </div>
 
       {loading ? (
         <div className="py-24 text-center text-[#5c5851] font-mono text-xs">
-          ACCESSING ARCHIVED JOURNALS...
+          LOADING SAVED TRIPS...
         </div>
       ) : trips.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -146,16 +146,16 @@ export const MyTripsPage = () => {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      title="Delete journal entry"
+                      title="Delete saved trip"
                       disabled={deletingId === tripId}
                       onClick={(e) => handleDeleteTrip(tripId, e)}
-                      className="text-[#5c5851] hover:text-red-400 font-mono text-xs transition-colors p-1"
+                      className="text-[#5c5851] hover:text-red-400 font-mono text-xs transition-colors p-1 cursor-pointer"
                     >
                       {deletingId === tripId ? '...' : 'DELETE'}
                     </button>
 
                     <TravelButton variant="solid" arrow>
-                      OPEN
+                      VIEW
                     </TravelButton>
                   </div>
                 </div>
@@ -164,22 +164,22 @@ export const MyTripsPage = () => {
           })}
         </div>
       ) : (
-        /* Editorial Empty State */
+        /* Empty State */
         <div className="py-24 text-center max-w-lg mx-auto flex flex-col items-center">
           <Logo size="lg" className="mb-6 opacity-75" />
 
           <p className="font-serif-subheadline text-2xl text-[#f5f2eb] mb-3">
-            "Your next journey hasn't been written yet."
+            "Your next journey hasn't been planned yet."
           </p>
           <p className="text-xs text-[#9e9a91] font-mono mb-8 max-w-sm">
             {!isAuthenticated
-              ? 'Sign in to access your saved journeys, or start planning a new circuit.'
-              : 'Choose a destination across India to craft an optimized day-by-day expedition.'}
+              ? 'Sign in to access your saved trips, or start planning a new itinerary.'
+              : 'Choose a destination across India to craft an optimized day-by-day trip.'}
           </p>
 
           <Link to={!isAuthenticated ? '/login' : '/plan'}>
             <TravelButton variant="violet" arrow>
-              {!isAuthenticated ? 'SIGN IN TO JOURNAL' : 'PLAN A TRIP'}
+              {!isAuthenticated ? 'SIGN IN' : 'PLAN A TRIP'}
             </TravelButton>
           </Link>
         </div>

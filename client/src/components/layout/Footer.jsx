@@ -9,7 +9,7 @@ export const Footer = () => {
         <div className="flex flex-col gap-2">
           <Logo size="md" />
           <p className="font-serif italic text-xs text-[#5c5851] max-w-sm mt-1">
-            An editorial travel journal and algorithmic routing engine designed for exploring India with intent, beauty, and zero dead mileage.
+            An intelligent trip planner and algorithmic routing engine designed for exploring India with zero dead mileage.
           </p>
         </div>
 

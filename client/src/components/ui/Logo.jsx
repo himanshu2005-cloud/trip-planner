@@ -21,7 +21,7 @@ export const Logo = ({
     <Link
       to="/"
       className={`inline-flex items-center gap-3 group transition-opacity hover:opacity-90 ${className}`}
-      title="TripPilot — Travel Journal & Planner"
+      title="TripPilot — Precision Trip Planner"
     >
       {/* Favicon Icon Part (Paper plane in purple circle) */}
       <div className={`relative shrink-0 overflow-hidden rounded-full ${iconSizes[size] || iconSizes.md}`}>
@@ -39,11 +39,11 @@ export const Logo = ({
               TRIP<span className="text-[#cebfdf]">PILOT</span>
             </span>
             <span className="font-mono text-[9px] tracking-[0.2em] text-[#7a5293] uppercase hidden sm:inline">
-              JOURNAL
+              PLANNER
             </span>
           </div>
           <span className="font-mono text-[8px] tracking-[0.25em] text-[#5c5851] uppercase -mt-0.5">
-            PRECISION PLANNER
+            PRECISION ITINERARY
           </span>
         </div>
       )}

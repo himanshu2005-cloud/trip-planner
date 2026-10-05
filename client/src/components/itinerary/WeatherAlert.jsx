@@ -5,9 +5,9 @@ import React, { useState } from 'react';
  * Editorial meteorological advisory dispatch.
  */
 export const WeatherAlert = ({
-  rainForecast = 'Rain expected around 15:00',
-  originalRoute = 'Eiffel Tower → Luxembourg Gardens',
-  updatedRoute = 'Eiffel Tower → Louvre Museum & Covered Passages',
+  rainForecast = 'Intense midday heat expected near 13:00',
+  originalRoute = 'Nahargarh Fort Outdoor Ramparts (13:00)',
+  updatedRoute = 'Early Morning Amber Fort → Shaded City Palace Museum',
 }) => {
   const [open, setOpen] = useState(false);
 
